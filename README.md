@@ -47,7 +47,7 @@ pip install -r requirements.txt
 
 ## API Keys Required
 
-- **Mistral AI**: Get your API key from [Mistral AI Platform](https://mistral.ai)
+- **Mistral AI**: Get your API key from [Mistral AI Console](https://console.mistral.ai/api-keys)
 - **Gemini AI**: Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
 
 ## Usage
