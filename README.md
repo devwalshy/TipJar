@@ -1,4 +1,4 @@
-# Tip Distribution Manager
+# TipJar
 
 A Streamlit application that automates tip allocation and cash distribution for service teams using OCR (Optical Character Recognition) to process partner hours from PDFs or images.
 
