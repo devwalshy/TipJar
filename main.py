@@ -12,92 +12,110 @@ import json
 # From python-dotenv package:
 from dotenv import load_dotenv
 
+# Configure page - MUST BE THE FIRST STREAMLIT COMMAND
+st.set_page_config(layout="wide", page_title="TipJar", page_icon="💰")
+
 # Load environment variables from .env file
 load_dotenv()
 
 # Add custom CSS for better responsiveness
 st.markdown("""
 <style>
-    /* Base styles */
+    /* Base styles for all devices */
     .stApp {
         max-width: 100%;
     }
     
-    /* Responsive adjustments */
+    /* Mobile detection and responsive design */
     @media (max-width: 768px) {
-        /* Mobile-specific styles */
-        .mobile-only {
-            display: block !important;
+        /* Apply mobile styles automatically based on viewport */
+        .element-container {
+            max-width: 95vw !important;
         }
-        .desktop-only {
-            display: none !important;
+        
+        /* Improve button touch targets */
+        button, [role="button"] {
+            min-height: 44px !important;
+            padding: 10px !important;
         }
-        /* Make buttons larger on mobile for touch */
-        button {
-            min-height: 50px !important;
-            font-size: 16px !important;
+        
+        /* Better spacing for mobile UI */
+        .row-widget.stRadio > div {
+            flex-direction: row !important;
+            margin-bottom: 10px !important;
         }
-        /* Better spacing on mobile */
-        .stRadio > div {
-            margin-bottom: 15px !important;
+        
+        /* Ensure font size is legible on mobile */
+        .stTextInput input, .stNumberInput input {
+            font-size: 16px !important; /* Prevents iOS zoom on focus */
+        }
+        
+        /* Full width containers on mobile */
+        .block-container, .css-18e3th9 {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+            max-width: 95vw !important;
         }
     }
     
-    @media (min-width: 769px) {
-        /* Desktop-specific styles */
-        .mobile-only {
-            display: none !important;
-        }
-        .desktop-only {
-            display: block !important;
-        }
-    }
-    
-    /* App-wide improvements */
+    /* Starbucks brand styling */
     .stButton button {
         border-radius: 20px;
-        padding: 2px 15px;
-        background-color: #00704A;
-        color: white;
+        background-color: #00704A !important;
+        color: white !important;
+        font-weight: 500;
     }
     
-    /* Sidebar improvements */
-    .css-1d391kg {
+    /* Improve sidebar spacing */
+    section[data-testid="stSidebar"] {
+        background-color: #1e1e1e;
         padding-top: 2rem;
+    }
+    
+    /* Custom text colors */
+    h1, h2, h3 {
+        color: #00704A !important;
+    }
+    
+    /* Consistent table styling */
+    table {
+        width: 100%;
+    }
+    
+    /* Container styling */
+    .custom-card {
+        border: 1px solid rgba(49, 51, 63, 0.2);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # Function to detect if we're on a mobile device (used for conditional layouts)
 def is_mobile():
-    # Simple check to detect narrow screens (likely mobile)
-    # We'll use this for conditional rendering
+    # Simple width-based detection
+    # We'll use a session state variable to track this
     return st.session_state.get('mobile_detected', False)
 
-# Configure page
-st.set_page_config(layout="wide", page_title="TipJar", page_icon="💰")
-
-# Detect device type based on initial screen size
+# Detect device type based on user agent or viewport
 if 'mobile_detected' not in st.session_state:
-    # This is a trick to inject JavaScript to check screen width
-    # It will set a session state variable based on screen size
-    # This needs to run only once when the app loads
-    st.markdown("""
-    <script>
-        // Detect mobile device on page load
-        const isMobile = window.innerWidth < 768;
-        
-        // Set a streamlit session state variable
-        if (isMobile) {
-            window.parent.postMessage({
-                type: "streamlit:setComponentValue",
-                value: true
-            }, "*");
-        }
-    </script>
-    """, unsafe_allow_html=True)
-    # Will be updated through the callback
+    # Initialize as false - will be detected through viewport size by CSS
     st.session_state['mobile_detected'] = False
+
+    # Add a custom component to allow users to manually toggle mobile view for testing
+    # This is hidden in the UI but accessible for debugging if needed
+    st.markdown("""
+    <div style="display:none">
+        <button onclick="
+            const isMobile = window.innerWidth < 768;
+            window.parent.postMessage({
+                type: 'streamlit:setComponentValue',
+                value: isMobile
+            }, '*');
+        ">Auto-detect mobile</button>
+    </div>
+    """, unsafe_allow_html=True)
 
 # Title section - same for both mobile and desktop
 st.title("TipJar")
@@ -600,11 +618,17 @@ if st.session_state["ocr_result"]:
             for partner in tip_data:
                 with st.container():
                     st.markdown(f"""
-                    **Partner:** {partner['Partner Name']} (#{partner['#']})<br>
-                    **Hours:** {partner['Hours']} | **Amount:** {partner['Tip Amount']}<br>
-                    **Bills:** {partner['Bills']}
+                    <div class="custom-card">
+                        <h4 style="margin: 0; color: #00704A;">{partner['Partner Name']} <span style="color: #666;">#{partner['#']}</span></h4>
+                        <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                            <div>{partner['Hours']} hours</div>
+                            <div style="font-weight: bold;">{partner['Tip Amount']}</div>
+                        </div>
+                        <div style="margin-top: 5px;">
+                            <small>Bills: {partner['Bills']}</small>
+                        </div>
+                    </div>
                     """, unsafe_allow_html=True)
-                    st.markdown("---")
         else:
             # Desktop gets the full table
             st.table(tip_data)
