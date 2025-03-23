@@ -6,13 +6,26 @@ import google.generativeai as genai
 from PIL import Image
 import io
 import requests
+import re
+import math
+import json
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure page
-st.set_page_config(layout="wide", page_title="Document OCR & QA App", page_icon="🖥️")
-st.title("Document OCR & Question Answering App")
+st.set_page_config(layout="wide", page_title="Tip Distribution Manager", page_icon="💰")
+st.title("Tip Distribution Manager")
 with st.expander("Expand Me"):
     st.markdown("""
-    This application allows you to extract information from pdf/image and ask questions about the content using either Mistral or Gemini AI.
+    This application helps automate tip allocation and cash distribution for service teams.
+    
+    Key functions:
+    1. Process partner hours from PDF/image input
+    2. Calculate individual tips based on hours worked
+    3. Distribute bills equitably among partners
+    4. Output detailed distribution breakdown per partner
     """)
 
 # Initialize session state variables
@@ -22,28 +35,48 @@ if "preview_src" not in st.session_state:
     st.session_state["preview_src"] = None
 if "image_bytes" not in st.session_state:
     st.session_state["image_bytes"] = None
-if "qa_history" not in st.session_state:
-    st.session_state["qa_history"] = []
+if "tips_calculated" not in st.session_state:
+    st.session_state["tips_calculated"] = False
+if "week_counter" not in st.session_state:
+    st.session_state["week_counter"] = 1
+if "tips_history" not in st.session_state:
+    st.session_state["tips_history"] = []
 if "gemini_chat" not in st.session_state:
     st.session_state["gemini_chat"] = None
+
+# Get API keys from environment variables
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+
+# Add config section in sidebar
+with st.sidebar:
+    st.header("API Configuration")
+    st.write("API keys are loaded from .env file")
+    
+    # Show API key status and option to update
+    mistral_key_set = bool(MISTRAL_API_KEY)
+    gemini_key_set = bool(GEMINI_API_KEY)
+    
+    st.write(f"Mistral API Key: {'✅ Configured' if mistral_key_set else '❌ Not Configured'}")
+    st.write(f"Gemini API Key: {'✅ Configured' if gemini_key_set else '❌ Not Configured'}")
+    
+    st.write("To update API keys, edit the .env file in the application directory.")
 
 # Choose AI Provider
 ai_provider = st.radio("Select AI Provider", ("Mistral", "Gemini"))
 
-# API Key Input based on provider
+# Check if selected provider's API key is available
 if ai_provider == "Mistral":
-    api_key = st.text_input("Enter your Mistral API Key", type="password")
-    if not api_key:
-        st.info("Please enter your Mistral API key to continue.")
+    if not MISTRAL_API_KEY:
+        st.error("Mistral API key is not configured in the .env file. Please add it and restart the application.")
         st.stop()
-else:
-    gemini_key = st.text_input("Enter your Google Gemini API Key", type="password")
-    if not gemini_key:
-        st.info("Please enter your Gemini API key to continue.")
+else:  # Gemini
+    if not GEMINI_API_KEY:
+        st.error("Gemini API key is not configured in the .env file. Please add it and restart the application.")
         st.stop()
     
     # Configure Gemini with safety settings
-    genai.configure(api_key=gemini_key)
+    genai.configure(api_key=GEMINI_API_KEY)
     generation_config = {
         "temperature": 0.7,
         "top_p": 0.9,
@@ -84,7 +117,7 @@ if st.button("Process"):
     else:
         with st.spinner("Processing the document..."):
             if ai_provider == "Mistral":
-                client = Mistral(api_key=api_key)
+                client = Mistral(api_key=MISTRAL_API_KEY)
                 # Existing Mistral processing code
                 if file_type == "PDF":
                     if source_type == "URL":
@@ -161,10 +194,10 @@ if st.button("Process"):
                         
                         # Create structured prompt for better OCR
                         prompt = """Please analyze this image and:
-                        1. Extract all visible text
+                        1. Extract all visible text, especially focusing on names and hours worked
                         2. Maintain the original formatting and structure
                         3. Preserve any important visual context
-                        4. Include any relevant details about text layout or positioning
+                        4. Make sure to clearly identify all partner/employee names and their corresponding hours
                         
                         Extract and format the text clearly:"""
                         
@@ -176,7 +209,7 @@ if st.button("Process"):
                         st.error("PDF processing with Gemini is not supported yet. Please use Mistral for PDFs.")
                         st.stop()
                     
-                    # Initialize chat model for QA with Gemini 1.5 Pro
+                    # Initialize chat model for processing with Gemini 1.5 Pro
                     st.session_state["gemini_chat"] = genai.GenerativeModel(
                         'gemini-1.5-pro',
                         generation_config=generation_config,
@@ -189,6 +222,7 @@ if st.button("Process"):
             
             st.session_state["ocr_result"] = result_text
             st.session_state["preview_src"] = preview_src
+            st.session_state["tips_calculated"] = False
 
 # Display Preview and OCR Result
 if st.session_state["ocr_result"]:
@@ -218,57 +252,238 @@ if st.session_state["ocr_result"]:
                 st.image(st.session_state["preview_src"])
     
     with col2:
-        st.subheader("OCR Result")
+        st.subheader("Extracted Hours Data")
         st.write(st.session_state["ocr_result"])
         
-        # Question answering section
-        st.subheader("Ask Questions")
-        user_question = st.text_input("Ask a question about the document:")
+        # Tip Distribution Manager Section
+        st.subheader("Tip Distribution Manager")
         
-        if user_question:
-            with st.spinner("Generating answer..."):
+        # Extract partner data with AI assistance
+        if st.button("Extract Partner Data"):
+            with st.spinner("Extracting partner data..."):
                 try:
                     if ai_provider == "Mistral":
-                        client = Mistral(api_key=api_key)
-                        prompt = f"""Context: {st.session_state["ocr_result"]}
+                        client = Mistral(api_key=MISTRAL_API_KEY)
+                        prompt = f"""
+                        From the following text, extract partner names and their hours worked. Format as JSON:
                         
-                        Question: {user_question}
+                        {st.session_state["ocr_result"]}
                         
-                        Please provide a clear and concise answer based on the context above."""
+                        Return a JSON array of objects with 'name' and 'hours' fields. Example:
+                        [
+                            {{"name": "John Smith", "hours": 32.5}},
+                            {{"name": "Jane Doe", "hours": 28.75}}
+                        ]
+                        
+                        Only include valid partners with hours. Output ONLY the JSON array, nothing else.
+                        """
                         
                         chat_response = client.chat.complete(
                             model="mistral-large-latest",
-                            messages=[
-                                {
-                                    "role": "user",
-                                    "content": prompt
-                                }
-                            ]
+                            messages=[{"role": "user", "content": prompt}]
                         )
-                        answer = chat_response.choices[0].message.content
+                        partner_data_str = chat_response.choices[0].message.content
                     else:  # Gemini
-                        # Use the chat model for better context retention
-                        prompt = f"""Based on this context: {st.session_state["ocr_result"]}
+                        prompt = f"""
+                        From the following text, extract partner names and their hours worked. Format as JSON:
                         
-                        Answer this question: {user_question}
+                        {st.session_state["ocr_result"]}
                         
-                        Provide a clear and accurate answer using only the information from the context."""
+                        Return a JSON array of objects with 'name' and 'hours' fields. Example:
+                        [
+                            {{"name": "John Smith", "hours": 32.5}},
+                            {{"name": "Jane Doe", "hours": 28.75}}
+                        ]
+                        
+                        Only include valid partners with hours. Output ONLY the JSON array, nothing else.
+                        """
                         
                         response = st.session_state["gemini_chat"].send_message(prompt)
-                        answer = response.text
+                        partner_data_str = response.text
                     
-                    st.session_state["qa_history"].append({"question": user_question, "answer": answer})
+                    # Extract the JSON from the response
+                    pattern = r'\[\s*{.*}\s*\]'
+                    json_match = re.search(pattern, partner_data_str, re.DOTALL)
+                    
+                    if json_match:
+                        partner_data_str = json_match.group(0)
+                    
+                    partner_data = json.loads(partner_data_str)
+                    
+                    # Add partner numbers
+                    for i, partner in enumerate(partner_data):
+                        partner["number"] = i + 1
+                    
+                    st.session_state["partner_data"] = partner_data
+                    
+                    # Calculate total hours
+                    total_hours = sum(float(partner["hours"]) for partner in partner_data)
+                    st.session_state["total_hours"] = total_hours
+                    
+                    # Display partner data
+                    st.write(f"Total Hours: {total_hours}")
+                    st.write("Partner Data:")
+                    for partner in partner_data:
+                        st.write(f"{partner['name']} - {partner['hours']} hours")
                     
                 except Exception as e:
-                    st.error(f"Error generating answer: {str(e)}")
+                    st.error(f"Error extracting partner data: {str(e)}")
+                    st.error("Please try again or manually enter partner data.")
         
-        # Display QA history
-        if st.session_state["qa_history"]:
-            st.subheader("Question & Answer History")
-            for qa in st.session_state["qa_history"]:
-                st.write(f"Q: {qa['question']}")
-                st.write(f"A: {qa['answer']}")
-                st.markdown("---")
+        # Manual Partner Data Entry Option
+        with st.expander("Or Manually Enter Partner Data"):
+            num_partners = st.number_input("Number of Partners", min_value=1, max_value=20, value=3)
+            manual_partner_data = []
+            
+            for i in range(num_partners):
+                col1, col2 = st.columns(2)
+                with col1:
+                    name = st.text_input(f"Partner {i+1} Name", key=f"name_{i}")
+                with col2:
+                    hours = st.number_input(f"Partner {i+1} Hours", min_value=0.0, step=0.25, key=f"hours_{i}")
+                
+                if name:  # Only add if name is provided
+                    manual_partner_data.append({"name": name, "number": i+1, "hours": hours})
+            
+            if st.button("Save Partner Data"):
+                if all(partner["name"] for partner in manual_partner_data):
+                    st.session_state["partner_data"] = manual_partner_data
+                    st.session_state["total_hours"] = sum(float(partner["hours"]) for partner in manual_partner_data)
+                    st.success("Partner data saved successfully!")
+                else:
+                    st.error("Please provide names for all partners.")
+        
+        # Tip Allocation Section
+        if "partner_data" in st.session_state and not st.session_state["tips_calculated"]:
+            st.subheader("Tip Allocation")
+            total_tip_amount = st.number_input("Enter total tip amount for the week: $", min_value=0.0, step=10.0)
+            
+            if st.button("Calculate Tips"):
+                if total_tip_amount > 0:
+                    # Process Week Counter
+                    if "week_counter" not in st.session_state:
+                        st.session_state["week_counter"] = 1
+                    
+                    # Calculate individual tips
+                    partner_data = st.session_state["partner_data"]
+                    total_hours = st.session_state["total_hours"]
+                    
+                    for partner in partner_data:
+                        # Calculate exact tip amount (hours/total_hours * total_tips)
+                        exact_amount = (float(partner["hours"]) / total_hours) * total_tip_amount
+                        # Strict downward rounding (e.g., $58.99 → $58)
+                        partner["tip_amount"] = math.floor(exact_amount)
+                    
+                    # Distribute bills
+                    denominations = [20, 10, 5, 1]
+                    
+                    # Determine starting partner index based on rotation
+                    num_partners = len(partner_data)
+                    start_index = (st.session_state["week_counter"] - 1) % num_partners
+                    
+                    # Process each partner's distribution
+                    remaining_amounts = {}
+                    for partner in partner_data:
+                        remaining_amounts[partner["number"]] = partner["tip_amount"]
+                    
+                    # Initialize bill counts for each partner
+                    for partner in partner_data:
+                        partner["bills"] = {20: 0, 10: 0, 5: 0, 1: 0}
+                    
+                    # Distribute by denomination, starting with largest
+                    for denomination in denominations:
+                        # Create an order of partners, starting with the rotation partner
+                        partner_order = [(start_index + i) % num_partners for i in range(num_partners)]
+                        
+                        # Keep distributing bills of this denomination while possible
+                        while True:
+                            distributed = False
+                            for idx in partner_order:
+                                partner_num = partner_data[idx]["number"]
+                                if remaining_amounts[partner_num] >= denomination:
+                                    # Give this partner a bill of this denomination
+                                    partner_data[idx]["bills"][denomination] += 1
+                                    remaining_amounts[partner_num] -= denomination
+                                    distributed = True
+                            
+                            # If we couldn't distribute any more of this denomination, move to next
+                            if not distributed:
+                                break
+                    
+                    # Add the bill distribution to each partner's data
+                    for partner in partner_data:
+                        bills_text = []
+                        for denom in [20, 10, 5, 1]:
+                            if partner["bills"][denom] > 0:
+                                bills_text.append(f"{partner['bills'][denom]}x${denom}")
+                        
+                        partner["bills_text"] = ",".join(bills_text)
+                        
+                        # Format for copy-paste
+                        partner["formatted_output"] = (
+                            f"Partner Name: {partner['name']} | #: {partner['number']} | "
+                            f"Hours: {partner['hours']} | Tip Amount: ${partner['tip_amount']} | "
+                            f"Bills: {partner['bills_text']}"
+                        )
+                    
+                    # Save to session state
+                    st.session_state["distributed_tips"] = partner_data
+                    st.session_state["total_tip_amount"] = total_tip_amount
+                    st.session_state["tips_calculated"] = True
+                    
+                    # Increment week counter for the next allocation
+                    st.session_state["week_counter"] += 1
+                else:
+                    st.error("Please enter a valid tip amount.")
+        
+        # Display Tip Distribution Results
+        if st.session_state.get("tips_calculated", False):
+            st.subheader("Tip Distribution Results")
+            
+            # Display results in a table
+            tip_data = []
+            for partner in st.session_state["distributed_tips"]:
+                tip_data.append({
+                    "Partner Name": partner["name"],
+                    "#": partner["number"],
+                    "Hours": partner["hours"],
+                    "Tip Amount": f"${partner['tip_amount']}",
+                    "Bills": partner["bills_text"]
+                })
+            
+            st.table(tip_data)
+            
+            # Display copy-paste ready format
+            st.subheader("Copy-paste ready format:")
+            for partner in st.session_state["distributed_tips"]:
+                st.text(partner["formatted_output"])
+            
+            # Save distribution to history
+            if st.button("Save to History"):
+                distribution = {
+                    "week": st.session_state["week_counter"] - 1,
+                    "total_amount": st.session_state["total_tip_amount"],
+                    "total_hours": st.session_state["total_hours"],
+                    "partners": st.session_state["distributed_tips"]
+                }
+                
+                if "tips_history" not in st.session_state:
+                    st.session_state["tips_history"] = []
+                
+                st.session_state["tips_history"].append(distribution)
+                st.success("Distribution saved to history!")
+        
+        # History section
+        if "tips_history" in st.session_state and st.session_state["tips_history"]:
+            with st.expander("View Distribution History"):
+                for i, dist in enumerate(st.session_state["tips_history"]):
+                    st.write(f"### Week {dist['week']}")
+                    st.write(f"Total: ${dist['total_amount']} for {dist['total_hours']} hours")
+                    
+                    for partner in dist["partners"]:
+                        st.write(f"{partner['name']} | #{partner['number']} | {partner['hours']} hours | ${partner['tip_amount']} | {partner['bills_text']}")
+                    
+                    st.markdown("---")
         
         # Download link for OCR result
         b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
