@@ -587,6 +587,8 @@ if st.session_state["ocr_result"]:
                 for partner in partner_data:
                     # Calculate exact tip amount (hours/total_hours * total_tips)
                     exact_amount = (float(partner["hours"]) / total_hours) * total_tip_amount
+                    # Store both exact and rounded amounts
+                    partner["exact_tip_amount"] = exact_amount
                     # Round to nearest dollar (Starbucks policy)
                     # Examples: $23.89 rounds to $24, $12.12 rounds to $12
                     partner["tip_amount"] = round(exact_amount)
@@ -642,8 +644,8 @@ if st.session_state["ocr_result"]:
                     # Format for copy-paste
                     partner["formatted_output"] = (
                         f"Partner Name: {partner['name']} | #: {partner['number']} | "
-                        f"Hours: {partner['hours']} | Tip Amount: ${partner['tip_amount']} | "
-                        f"Bills: {partner['bills_text']}"
+                        f"Hours: {partner['hours']} | Exact: ${partner['exact_tip_amount']:.2f} | "
+                        f"Rounded: ${partner['tip_amount']} | Bills: {partner['bills_text']}"
                     )
                 
                 # Save to session state
@@ -675,7 +677,8 @@ if st.session_state["ocr_result"]:
                 "Partner Name": partner["name"],
                 "#": partner["number"],
                 "Hours": partner["hours"],
-                "Tip Amount": f"${partner['tip_amount']}",
+                "Exact Amount": f"${partner['exact_tip_amount']:.2f}",
+                "Rounded": f"${partner['tip_amount']}",
                 "Bills": partner["bills_text"]
             })
         
@@ -688,7 +691,10 @@ if st.session_state["ocr_result"]:
                         <h4 style="margin: 0; color: #00704A;">{partner['Partner Name']} <span style="color: #666;">#{partner['#']}</span></h4>
                         <div style="display: flex; justify-content: space-between; margin-top: 5px;">
                             <div>{partner['Hours']} hours</div>
-                            <div style="font-weight: bold;">{partner['Tip Amount']}</div>
+                            <div>
+                                <span style="color: #666; font-size: 0.9em;">${"{:.2f}".format(float(partner['Exact Amount'][1:]))}</span> → 
+                                <span style="font-weight: bold;">{partner['Rounded']}</span>
+                            </div>
                         </div>
                         <div style="margin-top: 5px;">
                             <small>Bills: {partner['Bills']}</small>
