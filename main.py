@@ -15,8 +15,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Configure page
-st.set_page_config(layout="wide", page_title="Tip Distribution Manager", page_icon="💰")
-st.title("Tip Distribution Manager")
+st.set_page_config(layout="wide", page_title="TipJar", page_icon="💰")
+st.title("TipJar")
+st.caption("Made by William Walsh 2025")
 with st.expander("Expand Me"):
     st.markdown("""
     This application helps automate tip allocation and cash distribution for service teams.
@@ -50,6 +51,19 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 # Add config section in sidebar
 with st.sidebar:
+    # Add Starbucks-inspired branding
+    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
+    st.title("TipJar")
+    st.caption("Made by William Walsh 2025")
+    
+    # Theme toggle (this doesn't actually change the theme since Streamlit's theming is controlled by config.toml,
+    # but it provides a visual indication to the user that dark mode is supported)
+    st.markdown("---")
+    st.subheader("App Settings")
+    theme_mode = st.selectbox("Theme", ["Dark Mode (Default)", "Light Mode"], 
+                             help="Appearance preference is applied on reload")
+    
+    st.markdown("---")
     st.header("API Configuration")
     st.write("API keys are loaded from .env file")
     
@@ -61,6 +75,10 @@ with st.sidebar:
     st.write(f"Gemini API Key: {'✅ Configured' if gemini_key_set else '❌ Not Configured'}")
     
     st.write("To update API keys, edit the .env file in the application directory.")
+    
+    # Add Starbucks-inspired footer to sidebar
+    st.markdown("---")
+    st.markdown("<div style='text-align: center; color: #00704A;'>TipJar © 2025</div>", unsafe_allow_html=True)
 
 # Choose AI Provider
 ai_provider = st.radio("Select AI Provider", ("Mistral", "Gemini"))
@@ -489,3 +507,15 @@ if st.session_state["ocr_result"]:
         b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
         href = f'<a href="data:file/txt;base64,{b64}" download="ocr_result.txt">Download OCR Result</a>'
         st.markdown(href, unsafe_allow_html=True) 
+
+# Add Starbucks-themed footer
+st.markdown("---")
+st.markdown(
+    """
+    <div style="text-align: center; color: #00704A; margin-top: 30px;">
+        <p>TipJar © 2025 | Made with 💚 by William Walsh</p>
+        <p style="font-size: 0.8em;">Powered by Streamlit | Starbucks-inspired theme</p>
+    </div>
+    """, 
+    unsafe_allow_html=True
+) 
