@@ -118,8 +118,20 @@ if 'mobile_detected' not in st.session_state:
     """, unsafe_allow_html=True)
 
 # Title section - same for both mobile and desktop
-st.title("TipJar")
-st.caption("Made by William Walsh 2025")
+if is_mobile():
+    # For mobile: centered logo and stacked layout
+    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=80)
+    st.title("TipJar")
+    st.caption("Made by William Walsh 2025")
+else:
+    # For desktop: logo and title side by side
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
+    with col2:
+        st.title("TipJar")
+        st.caption("Made by William Walsh 2025")
+
 st.markdown("""
 This application helps automate tip allocation and cash distribution for service teams.
 
