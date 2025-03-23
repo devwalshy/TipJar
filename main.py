@@ -587,8 +587,12 @@ if st.session_state["ocr_result"]:
                 for partner in partner_data:
                     # Calculate exact tip amount (hours/total_hours * total_tips)
                     exact_amount = (float(partner["hours"]) / total_hours) * total_tip_amount
-                    # Strict downward rounding (e.g., $58.99 → $58)
-                    partner["tip_amount"] = math.floor(exact_amount)
+                    # Round to nearest dollar (Starbucks policy)
+                    # Examples: $23.89 rounds to $24, $12.12 rounds to $12
+                    partner["tip_amount"] = round(exact_amount)
+                
+                # Add a note about the rounding policy
+                st.info("Following Starbucks policy, tip amounts are rounded to the nearest dollar for simplicity in distribution.")
                 
                 # Distribute bills
                 denominations = [20, 10, 5, 1]
@@ -655,6 +659,14 @@ if st.session_state["ocr_result"]:
     # Display Tip Distribution Results
     if st.session_state.get("tips_calculated", False):
         st.subheader("Tip Distribution Results")
+        
+        # Add explanation about rounding policy
+        st.markdown("""
+        <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+            <strong>Rounding Policy:</strong> Following Starbucks standard practice, tip amounts are rounded to the nearest dollar.
+            For example, $23.89 rounds up to $24, while $12.12 rounds down to $12.
+        </div>
+        """, unsafe_allow_html=True)
         
         # Adapt table display for mobile
         tip_data = []
