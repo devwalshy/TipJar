@@ -447,6 +447,21 @@ if st.session_state["ocr_result"]:
                         messages=[{"role": "user", "content": prompt}]
                     )
                     partner_data_str = chat_response.choices[0].message.content
+                    
+                    # Also extract the total tippable hours from the document if available
+                    total_hours_prompt = f"""
+                    From the following text, extract ONLY the total tippable hours (or total hours) mentioned in the document.
+                    Return ONLY the number. If you find multiple totals, return the one that's labeled as "Total Tippable Hours" or similar.
+                    
+                    {st.session_state["ocr_result"]}
+                    """
+                    
+                    total_hours_response = client.chat.complete(
+                        model="mistral-large-latest",
+                        messages=[{"role": "user", "content": total_hours_prompt}]
+                    )
+                    document_total_hours_str = total_hours_response.choices[0].message.content.strip()
+                    
                 else:  # Gemini
                     prompt = f"""
                     From the following text, extract partner names and their hours worked. Format as JSON:
@@ -464,6 +479,17 @@ if st.session_state["ocr_result"]:
                     
                     response = st.session_state["gemini_chat"].send_message(prompt)
                     partner_data_str = response.text
+                    
+                    # Also extract the total tippable hours from the document if available
+                    total_hours_prompt = f"""
+                    From the following text, extract ONLY the total tippable hours (or total hours) mentioned in the document.
+                    Return ONLY the number. If you find multiple totals, return the one that's labeled as "Total Tippable Hours" or similar.
+                    
+                    {st.session_state["ocr_result"]}
+                    """
+                    
+                    total_hours_response = st.session_state["gemini_chat"].send_message(total_hours_prompt)
+                    document_total_hours_str = total_hours_response.text.strip()
                 
                 # Extract the JSON from the response
                 pattern = r'\[\s*{.*}\s*\]'
@@ -489,6 +515,25 @@ if st.session_state["ocr_result"]:
                 st.write("Partner Data:")
                 for partner in partner_data:
                     st.write(f"{partner['name']} - {partner['hours']} hours")
+                
+                # Compare with document's total hours if available
+                try:
+                    # Clean up the extracted total hours string
+                    document_total_hours_str = re.sub(r'[^\d.]', '', document_total_hours_str)
+                    if document_total_hours_str:
+                        document_total_hours = float(document_total_hours_str)
+                        st.session_state["document_total_hours"] = document_total_hours
+                        
+                        # Display the comparison
+                        st.markdown("### Hours Validation")
+                        
+                        if abs(document_total_hours - total_hours) < 0.01:  # Small threshold for float comparison
+                            st.success(f"✅ Validation passed! Document total ({document_total_hours}) matches calculated total ({total_hours}).")
+                        else:
+                            st.warning(f"⚠️ Validation check: Document shows {document_total_hours} total hours, but calculated total is {total_hours}.")
+                            st.info("This discrepancy might be due to OCR errors or missing partners. Please verify manually.")
+                except Exception as e:
+                    st.info("Could not extract or validate total hours from the document.")
                 
             except Exception as e:
                 st.error(f"Error extracting partner data: {str(e)}")
