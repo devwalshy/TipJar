@@ -422,9 +422,6 @@ if st.session_state["ocr_result"]:
             st.subheader("Extracted Hours Data")
             st.write(st.session_state["ocr_result"])
     
-    # Tip Distribution Manager Section - similar for both layouts
-    st.subheader("Tip Distribution Manager")
-    
     # Extract partner data with AI assistance
     if st.button("Extract Partner Data", use_container_width=is_mobile()):
         with st.spinner("Extracting partner data..."):
