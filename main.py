@@ -15,8 +15,91 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+# Add custom CSS for better responsiveness
+st.markdown("""
+<style>
+    /* Base styles */
+    .stApp {
+        max-width: 100%;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        /* Mobile-specific styles */
+        .mobile-only {
+            display: block !important;
+        }
+        .desktop-only {
+            display: none !important;
+        }
+        /* Make buttons larger on mobile for touch */
+        button {
+            min-height: 50px !important;
+            font-size: 16px !important;
+        }
+        /* Better spacing on mobile */
+        .stRadio > div {
+            margin-bottom: 15px !important;
+        }
+    }
+    
+    @media (min-width: 769px) {
+        /* Desktop-specific styles */
+        .mobile-only {
+            display: none !important;
+        }
+        .desktop-only {
+            display: block !important;
+        }
+    }
+    
+    /* App-wide improvements */
+    .stButton button {
+        border-radius: 20px;
+        padding: 2px 15px;
+        background-color: #00704A;
+        color: white;
+    }
+    
+    /* Sidebar improvements */
+    .css-1d391kg {
+        padding-top: 2rem;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Function to detect if we're on a mobile device (used for conditional layouts)
+def is_mobile():
+    # Simple check to detect narrow screens (likely mobile)
+    # We'll use this for conditional rendering
+    return st.session_state.get('mobile_detected', False)
+
 # Configure page
 st.set_page_config(layout="wide", page_title="TipJar", page_icon="💰")
+
+# Detect device type based on initial screen size
+if 'mobile_detected' not in st.session_state:
+    # This is a trick to inject JavaScript to check screen width
+    # It will set a session state variable based on screen size
+    # This needs to run only once when the app loads
+    st.markdown("""
+    <script>
+        // Detect mobile device on page load
+        const isMobile = window.innerWidth < 768;
+        
+        // Set a streamlit session state variable
+        if (isMobile) {
+            window.parent.postMessage({
+                type: "streamlit:setComponentValue",
+                value: true
+            }, "*");
+        }
+    </script>
+    """, unsafe_allow_html=True)
+    # Will be updated through the callback
+    st.session_state['mobile_detected'] = False
+
+# Title section - same for both mobile and desktop
 st.title("TipJar")
 st.caption("Made by William Walsh 2025")
 st.markdown("""
@@ -73,8 +156,24 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("<div style='text-align: center; color: #00704A;'>TipJar © 2025</div>", unsafe_allow_html=True)
 
-# Choose AI Provider
-ai_provider = st.radio("Select AI Provider", ("Mistral", "Gemini"))
+# Choose AI Provider - different layout for mobile vs desktop
+if is_mobile():
+    # More compact layout for mobile
+    ai_provider = st.radio("Select AI Provider:", ("Mistral", "Gemini"), horizontal=True)
+    
+    # For mobile, stack the file type and source type selection vertically
+    file_type = st.radio("File type:", ("PDF", "Image"), horizontal=True)
+    source_type = st.radio("Source:", ("URL", "Local Upload"), horizontal=True)
+else:
+    # Desktop layout
+    ai_provider = st.radio("Select AI Provider", ("Mistral", "Gemini"))
+    
+    # Side-by-side for desktop
+    col1, col2 = st.columns(2)
+    with col1:
+        file_type = st.radio("Select file type", ("PDF", "Image"))
+    with col2:
+        source_type = st.radio("Select source type", ("URL", "Local Upload"))
 
 # Check if selected provider's API key is available
 if ai_provider == "Mistral":
@@ -101,13 +200,10 @@ else:  # Gemini
         {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
     ]
 
-# File type and source selection
-file_type = st.radio("Select file type", ("PDF", "Image"))
-source_type = st.radio("Select source type", ("URL", "Local Upload"))
-
 input_url = ""
 uploaded_file = None
 
+# URL or upload section - adapt based on device type
 if source_type == "URL":
     if file_type == "PDF":
         input_url = st.text_input("Enter PDF URL")
@@ -120,7 +216,7 @@ else:
         uploaded_file = st.file_uploader("Upload an Image file", type=["jpg", "jpeg", "png"])
 
 # Process Button & OCR Handling
-if st.button("Process"):
+if st.button("Process", use_container_width=is_mobile()):
     if source_type == "URL" and not input_url:
         st.error("Please enter a valid URL.")
     elif source_type == "Local Upload" and not uploaded_file:
@@ -237,18 +333,18 @@ if st.button("Process"):
 
 # Display Preview and OCR Result
 if st.session_state["ocr_result"]:
-    col1, col2 = st.columns(2)
-    
-    with col1:
+    # Use different layouts for mobile and desktop
+    if is_mobile():
+        # For mobile: stack the preview and OCR result vertically
         st.subheader("Preview")
         if file_type == "PDF":
             try:
-                # For PDFs, use object tag instead of iframe for better compatibility
+                # For PDFs, use object tag with mobile-friendly height
                 pdf_embed_html = f'''
                     <object data="{st.session_state["preview_src"]}" 
                             type="application/pdf" 
                             width="100%" 
-                            height="800">
+                            height="400">
                         <p>Unable to display PDF file. <a href="{st.session_state["preview_src"]}">Download</a> instead.</p>
                     </object>
                 '''
@@ -256,250 +352,299 @@ if st.session_state["ocr_result"]:
             except Exception as e:
                 st.error(f"Error displaying PDF: {str(e)}")
         else:
-            # For images, display using st.image
+            # For images on mobile, limit height
             if source_type == "Local Upload" and st.session_state["image_bytes"]:
-                st.image(st.session_state["image_bytes"])
+                st.image(st.session_state["image_bytes"], use_column_width=True)
             else:
-                st.image(st.session_state["preview_src"])
-    
-    with col2:
+                st.image(st.session_state["preview_src"], use_column_width=True)
+        
         st.subheader("Extracted Hours Data")
         st.write(st.session_state["ocr_result"])
+    
+    else:
+        # For desktop: use columns for side-by-side view
+        col1, col2 = st.columns(2)
         
-        # Tip Distribution Manager Section
-        st.subheader("Tip Distribution Manager")
-        
-        # Extract partner data with AI assistance
-        if st.button("Extract Partner Data"):
-            with st.spinner("Extracting partner data..."):
+        with col1:
+            st.subheader("Preview")
+            if file_type == "PDF":
                 try:
-                    if ai_provider == "Mistral":
-                        client = Mistral(api_key=MISTRAL_API_KEY)
-                        prompt = f"""
-                        From the following text, extract partner names and their hours worked. Format as JSON:
-                        
-                        {st.session_state["ocr_result"]}
-                        
-                        Return a JSON array of objects with 'name' and 'hours' fields. Example:
-                        [
-                            {{"name": "John Smith", "hours": 32.5}},
-                            {{"name": "Jane Doe", "hours": 28.75}}
-                        ]
-                        
-                        Only include valid partners with hours. Output ONLY the JSON array, nothing else.
-                        """
-                        
-                        chat_response = client.chat.complete(
-                            model="mistral-large-latest",
-                            messages=[{"role": "user", "content": prompt}]
-                        )
-                        partner_data_str = chat_response.choices[0].message.content
-                    else:  # Gemini
-                        prompt = f"""
-                        From the following text, extract partner names and their hours worked. Format as JSON:
-                        
-                        {st.session_state["ocr_result"]}
-                        
-                        Return a JSON array of objects with 'name' and 'hours' fields. Example:
-                        [
-                            {{"name": "John Smith", "hours": 32.5}},
-                            {{"name": "Jane Doe", "hours": 28.75}}
-                        ]
-                        
-                        Only include valid partners with hours. Output ONLY the JSON array, nothing else.
-                        """
-                        
-                        response = st.session_state["gemini_chat"].send_message(prompt)
-                        partner_data_str = response.text
-                    
-                    # Extract the JSON from the response
-                    pattern = r'\[\s*{.*}\s*\]'
-                    json_match = re.search(pattern, partner_data_str, re.DOTALL)
-                    
-                    if json_match:
-                        partner_data_str = json_match.group(0)
-                    
-                    partner_data = json.loads(partner_data_str)
-                    
-                    # Add partner numbers
-                    for i, partner in enumerate(partner_data):
-                        partner["number"] = i + 1
-                    
-                    st.session_state["partner_data"] = partner_data
-                    
-                    # Calculate total hours
-                    total_hours = sum(float(partner["hours"]) for partner in partner_data)
-                    st.session_state["total_hours"] = total_hours
-                    
-                    # Display partner data
-                    st.write(f"Total Hours: {total_hours}")
-                    st.write("Partner Data:")
-                    for partner in partner_data:
-                        st.write(f"{partner['name']} - {partner['hours']} hours")
-                    
+                    # For PDFs, use object tag
+                    pdf_embed_html = f'''
+                        <object data="{st.session_state["preview_src"]}" 
+                                type="application/pdf" 
+                                width="100%" 
+                                height="800">
+                            <p>Unable to display PDF file. <a href="{st.session_state["preview_src"]}">Download</a> instead.</p>
+                        </object>
+                    '''
+                    st.markdown(pdf_embed_html, unsafe_allow_html=True)
                 except Exception as e:
-                    st.error(f"Error extracting partner data: {str(e)}")
-                    st.error("Please try again or manually enter partner data.")
+                    st.error(f"Error displaying PDF: {str(e)}")
+            else:
+                # For images, display using st.image
+                if source_type == "Local Upload" and st.session_state["image_bytes"]:
+                    st.image(st.session_state["image_bytes"])
+                else:
+                    st.image(st.session_state["preview_src"])
         
-        # Manual Partner Data Entry Option
-        with st.expander("Or Manually Enter Partner Data"):
-            num_partners = st.number_input("Number of Partners", min_value=1, max_value=20, value=3)
-            manual_partner_data = []
-            
-            for i in range(num_partners):
+        with col2:
+            st.subheader("Extracted Hours Data")
+            st.write(st.session_state["ocr_result"])
+    
+    # Tip Distribution Manager Section - similar for both layouts
+    st.subheader("Tip Distribution Manager")
+    
+    # Extract partner data with AI assistance
+    if st.button("Extract Partner Data", use_container_width=is_mobile()):
+        with st.spinner("Extracting partner data..."):
+            try:
+                if ai_provider == "Mistral":
+                    client = Mistral(api_key=MISTRAL_API_KEY)
+                    prompt = f"""
+                    From the following text, extract partner names and their hours worked. Format as JSON:
+                    
+                    {st.session_state["ocr_result"]}
+                    
+                    Return a JSON array of objects with 'name' and 'hours' fields. Example:
+                    [
+                        {{"name": "John Smith", "hours": 32.5}},
+                        {{"name": "Jane Doe", "hours": 28.75}}
+                    ]
+                    
+                    Only include valid partners with hours. Output ONLY the JSON array, nothing else.
+                    """
+                    
+                    chat_response = client.chat.complete(
+                        model="mistral-large-latest",
+                        messages=[{"role": "user", "content": prompt}]
+                    )
+                    partner_data_str = chat_response.choices[0].message.content
+                else:  # Gemini
+                    prompt = f"""
+                    From the following text, extract partner names and their hours worked. Format as JSON:
+                    
+                    {st.session_state["ocr_result"]}
+                    
+                    Return a JSON array of objects with 'name' and 'hours' fields. Example:
+                    [
+                        {{"name": "John Smith", "hours": 32.5}},
+                        {{"name": "Jane Doe", "hours": 28.75}}
+                    ]
+                    
+                    Only include valid partners with hours. Output ONLY the JSON array, nothing else.
+                    """
+                    
+                    response = st.session_state["gemini_chat"].send_message(prompt)
+                    partner_data_str = response.text
+                
+                # Extract the JSON from the response
+                pattern = r'\[\s*{.*}\s*\]'
+                json_match = re.search(pattern, partner_data_str, re.DOTALL)
+                
+                if json_match:
+                    partner_data_str = json_match.group(0)
+                
+                partner_data = json.loads(partner_data_str)
+                
+                # Add partner numbers
+                for i, partner in enumerate(partner_data):
+                    partner["number"] = i + 1
+                
+                st.session_state["partner_data"] = partner_data
+                
+                # Calculate total hours
+                total_hours = sum(float(partner["hours"]) for partner in partner_data)
+                st.session_state["total_hours"] = total_hours
+                
+                # Display partner data
+                st.write(f"Total Hours: {total_hours}")
+                st.write("Partner Data:")
+                for partner in partner_data:
+                    st.write(f"{partner['name']} - {partner['hours']} hours")
+                
+            except Exception as e:
+                st.error(f"Error extracting partner data: {str(e)}")
+                st.error("Please try again or manually enter partner data.")
+    
+    # Manual Partner Data Entry Option - make more mobile-friendly
+    with st.expander("Or Manually Enter Partner Data"):
+        num_partners = st.number_input("Number of Partners", min_value=1, max_value=20, value=3)
+        manual_partner_data = []
+        
+        for i in range(num_partners):
+            # Different column layout for mobile vs desktop
+            if is_mobile():
+                # Stack fields vertically on mobile
+                name = st.text_input(f"Partner {i+1} Name", key=f"name_{i}")
+                hours = st.number_input(f"Partner {i+1} Hours", min_value=0.0, step=0.25, key=f"hours_{i}")
+            else:
+                # Side-by-side on desktop
                 col1, col2 = st.columns(2)
                 with col1:
                     name = st.text_input(f"Partner {i+1} Name", key=f"name_{i}")
                 with col2:
                     hours = st.number_input(f"Partner {i+1} Hours", min_value=0.0, step=0.25, key=f"hours_{i}")
-                
-                if name:  # Only add if name is provided
-                    manual_partner_data.append({"name": name, "number": i+1, "hours": hours})
             
-            if st.button("Save Partner Data"):
-                if all(partner["name"] for partner in manual_partner_data):
-                    st.session_state["partner_data"] = manual_partner_data
-                    st.session_state["total_hours"] = sum(float(partner["hours"]) for partner in manual_partner_data)
-                    st.success("Partner data saved successfully!")
-                else:
-                    st.error("Please provide names for all partners.")
+            if name:  # Only add if name is provided
+                manual_partner_data.append({"name": name, "number": i+1, "hours": hours})
         
-        # Tip Allocation Section
-        if "partner_data" in st.session_state and not st.session_state["tips_calculated"]:
-            st.subheader("Tip Allocation")
-            total_tip_amount = st.number_input("Enter total tip amount for the week: $", min_value=0.0, step=10.0)
-            
-            if st.button("Calculate Tips"):
-                if total_tip_amount > 0:
-                    # Process Week Counter
-                    if "week_counter" not in st.session_state:
-                        st.session_state["week_counter"] = 1
-                    
-                    # Calculate individual tips
-                    partner_data = st.session_state["partner_data"]
-                    total_hours = st.session_state["total_hours"]
-                    
-                    for partner in partner_data:
-                        # Calculate exact tip amount (hours/total_hours * total_tips)
-                        exact_amount = (float(partner["hours"]) / total_hours) * total_tip_amount
-                        # Strict downward rounding (e.g., $58.99 → $58)
-                        partner["tip_amount"] = math.floor(exact_amount)
-                    
-                    # Distribute bills
-                    denominations = [20, 10, 5, 1]
-                    
-                    # Determine starting partner index based on rotation
-                    num_partners = len(partner_data)
-                    start_index = (st.session_state["week_counter"] - 1) % num_partners
-                    
-                    # Process each partner's distribution
-                    remaining_amounts = {}
-                    for partner in partner_data:
-                        remaining_amounts[partner["number"]] = partner["tip_amount"]
-                    
-                    # Initialize bill counts for each partner
-                    for partner in partner_data:
-                        partner["bills"] = {20: 0, 10: 0, 5: 0, 1: 0}
-                    
-                    # Distribute by denomination, starting with largest
-                    for denomination in denominations:
-                        # Create an order of partners, starting with the rotation partner
-                        partner_order = [(start_index + i) % num_partners for i in range(num_partners)]
-                        
-                        # Keep distributing bills of this denomination while possible
-                        while True:
-                            distributed = False
-                            for idx in partner_order:
-                                partner_num = partner_data[idx]["number"]
-                                if remaining_amounts[partner_num] >= denomination:
-                                    # Give this partner a bill of this denomination
-                                    partner_data[idx]["bills"][denomination] += 1
-                                    remaining_amounts[partner_num] -= denomination
-                                    distributed = True
-                            
-                            # If we couldn't distribute any more of this denomination, move to next
-                            if not distributed:
-                                break
-                    
-                    # Add the bill distribution to each partner's data
-                    for partner in partner_data:
-                        bills_text = []
-                        for denom in [20, 10, 5, 1]:
-                            if partner["bills"][denom] > 0:
-                                bills_text.append(f"{partner['bills'][denom]}x${denom}")
-                        
-                        partner["bills_text"] = ",".join(bills_text)
-                        
-                        # Format for copy-paste
-                        partner["formatted_output"] = (
-                            f"Partner Name: {partner['name']} | #: {partner['number']} | "
-                            f"Hours: {partner['hours']} | Tip Amount: ${partner['tip_amount']} | "
-                            f"Bills: {partner['bills_text']}"
-                        )
-                    
-                    # Save to session state
-                    st.session_state["distributed_tips"] = partner_data
-                    st.session_state["total_tip_amount"] = total_tip_amount
-                    st.session_state["tips_calculated"] = True
-                    
-                    # Increment week counter for the next allocation
-                    st.session_state["week_counter"] += 1
-                else:
-                    st.error("Please enter a valid tip amount.")
+        if st.button("Save Partner Data", use_container_width=is_mobile()):
+            if all(partner["name"] for partner in manual_partner_data):
+                st.session_state["partner_data"] = manual_partner_data
+                st.session_state["total_hours"] = sum(float(partner["hours"]) for partner in manual_partner_data)
+                st.success("Partner data saved successfully!")
+            else:
+                st.error("Please provide names for all partners.")
+    
+    # Tip Allocation Section
+    if "partner_data" in st.session_state and not st.session_state["tips_calculated"]:
+        st.subheader("Tip Allocation")
+        total_tip_amount = st.number_input("Enter total tip amount for the week: $", min_value=0.0, step=10.0)
         
-        # Display Tip Distribution Results
-        if st.session_state.get("tips_calculated", False):
-            st.subheader("Tip Distribution Results")
-            
-            # Display results in a table
-            tip_data = []
-            for partner in st.session_state["distributed_tips"]:
-                tip_data.append({
-                    "Partner Name": partner["name"],
-                    "#": partner["number"],
-                    "Hours": partner["hours"],
-                    "Tip Amount": f"${partner['tip_amount']}",
-                    "Bills": partner["bills_text"]
-                })
-            
-            st.table(tip_data)
-            
-            # Display copy-paste ready format
-            st.subheader("Copy-paste ready format:")
-            for partner in st.session_state["distributed_tips"]:
-                st.text(partner["formatted_output"])
-            
-            # Save distribution to history
-            if st.button("Save to History"):
-                distribution = {
-                    "week": st.session_state["week_counter"] - 1,
-                    "total_amount": st.session_state["total_tip_amount"],
-                    "total_hours": st.session_state["total_hours"],
-                    "partners": st.session_state["distributed_tips"]
-                }
+        if st.button("Calculate Tips", use_container_width=is_mobile()):
+            if total_tip_amount > 0:
+                # Process Week Counter
+                if "week_counter" not in st.session_state:
+                    st.session_state["week_counter"] = 1
                 
-                if "tips_history" not in st.session_state:
-                    st.session_state["tips_history"] = []
+                # Calculate individual tips
+                partner_data = st.session_state["partner_data"]
+                total_hours = st.session_state["total_hours"]
                 
-                st.session_state["tips_history"].append(distribution)
-                st.success("Distribution saved to history!")
+                for partner in partner_data:
+                    # Calculate exact tip amount (hours/total_hours * total_tips)
+                    exact_amount = (float(partner["hours"]) / total_hours) * total_tip_amount
+                    # Strict downward rounding (e.g., $58.99 → $58)
+                    partner["tip_amount"] = math.floor(exact_amount)
+                
+                # Distribute bills
+                denominations = [20, 10, 5, 1]
+                
+                # Determine starting partner index based on rotation
+                num_partners = len(partner_data)
+                start_index = (st.session_state["week_counter"] - 1) % num_partners
+                
+                # Process each partner's distribution
+                remaining_amounts = {}
+                for partner in partner_data:
+                    remaining_amounts[partner["number"]] = partner["tip_amount"]
+                
+                # Initialize bill counts for each partner
+                for partner in partner_data:
+                    partner["bills"] = {20: 0, 10: 0, 5: 0, 1: 0}
+                
+                # Distribute by denomination, starting with largest
+                for denomination in denominations:
+                    # Create an order of partners, starting with the rotation partner
+                    partner_order = [(start_index + i) % num_partners for i in range(num_partners)]
+                    
+                    # Keep distributing bills of this denomination while possible
+                    while True:
+                        distributed = False
+                        for idx in partner_order:
+                            partner_num = partner_data[idx]["number"]
+                            if remaining_amounts[partner_num] >= denomination:
+                                # Give this partner a bill of this denomination
+                                partner_data[idx]["bills"][denomination] += 1
+                                remaining_amounts[partner_num] -= denomination
+                                distributed = True
+                        
+                        # If we couldn't distribute any more of this denomination, move to next
+                        if not distributed:
+                            break
+                
+                # Add the bill distribution to each partner's data
+                for partner in partner_data:
+                    bills_text = []
+                    for denom in [20, 10, 5, 1]:
+                        if partner["bills"][denom] > 0:
+                            bills_text.append(f"{partner['bills'][denom]}x${denom}")
+                    
+                    partner["bills_text"] = ",".join(bills_text)
+                    
+                    # Format for copy-paste
+                    partner["formatted_output"] = (
+                        f"Partner Name: {partner['name']} | #: {partner['number']} | "
+                        f"Hours: {partner['hours']} | Tip Amount: ${partner['tip_amount']} | "
+                        f"Bills: {partner['bills_text']}"
+                    )
+                
+                # Save to session state
+                st.session_state["distributed_tips"] = partner_data
+                st.session_state["total_tip_amount"] = total_tip_amount
+                st.session_state["tips_calculated"] = True
+                
+                # Increment week counter for the next allocation
+                st.session_state["week_counter"] += 1
+            else:
+                st.error("Please enter a valid tip amount.")
+    
+    # Display Tip Distribution Results
+    if st.session_state.get("tips_calculated", False):
+        st.subheader("Tip Distribution Results")
         
-        # History section
-        if "tips_history" in st.session_state and st.session_state["tips_history"]:
-            with st.expander("View Distribution History"):
-                for i, dist in enumerate(st.session_state["tips_history"]):
-                    st.write(f"### Week {dist['week']}")
-                    st.write(f"Total: ${dist['total_amount']} for {dist['total_hours']} hours")
-                    
-                    for partner in dist["partners"]:
-                        st.write(f"{partner['name']} | #{partner['number']} | {partner['hours']} hours | ${partner['tip_amount']} | {partner['bills_text']}")
-                    
+        # Adapt table display for mobile
+        tip_data = []
+        for partner in st.session_state["distributed_tips"]:
+            tip_data.append({
+                "Partner Name": partner["name"],
+                "#": partner["number"],
+                "Hours": partner["hours"],
+                "Tip Amount": f"${partner['tip_amount']}",
+                "Bills": partner["bills_text"]
+            })
+        
+        # For mobile, we can use a simplified view
+        if is_mobile():
+            for partner in tip_data:
+                with st.container():
+                    st.markdown(f"""
+                    **Partner:** {partner['Partner Name']} (#{partner['#']})<br>
+                    **Hours:** {partner['Hours']} | **Amount:** {partner['Tip Amount']}<br>
+                    **Bills:** {partner['Bills']}
+                    """, unsafe_allow_html=True)
                     st.markdown("---")
+        else:
+            # Desktop gets the full table
+            st.table(tip_data)
         
-        # Download link for OCR result
-        b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
-        href = f'<a href="data:file/txt;base64,{b64}" download="ocr_result.txt">Download OCR Result</a>'
-        st.markdown(href, unsafe_allow_html=True) 
+        # Display copy-paste ready format
+        st.subheader("Copy-paste ready format:")
+        for partner in st.session_state["distributed_tips"]:
+            st.text(partner["formatted_output"])
+        
+        # Save distribution to history
+        if st.button("Save to History", use_container_width=is_mobile()):
+            distribution = {
+                "week": st.session_state["week_counter"] - 1,
+                "total_amount": st.session_state["total_tip_amount"],
+                "total_hours": st.session_state["total_hours"],
+                "partners": st.session_state["distributed_tips"]
+            }
+            
+            if "tips_history" not in st.session_state:
+                st.session_state["tips_history"] = []
+            
+            st.session_state["tips_history"].append(distribution)
+            st.success("Distribution saved to history!")
+    
+    # History section
+    if "tips_history" in st.session_state and st.session_state["tips_history"]:
+        with st.expander("View Distribution History"):
+            for i, dist in enumerate(st.session_state["tips_history"]):
+                st.write(f"### Week {dist['week']}")
+                st.write(f"Total: ${dist['total_amount']} for {dist['total_hours']} hours")
+                
+                for partner in dist["partners"]:
+                    st.write(f"{partner['name']} | #{partner['number']} | {partner['hours']} hours | ${partner['tip_amount']} | {partner['bills_text']}")
+                
+                st.markdown("---")
+    
+    # Download link for OCR result
+    b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
+    href = f'<a href="data:file/txt;base64,{b64}" download="ocr_result.txt">Download OCR Result</a>'
+    st.markdown(href, unsafe_allow_html=True) 
 
 # Add Starbucks-themed footer
 st.markdown("---")
