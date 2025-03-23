@@ -18,16 +18,15 @@ load_dotenv()
 st.set_page_config(layout="wide", page_title="TipJar", page_icon="💰")
 st.title("TipJar")
 st.caption("Made by William Walsh 2025")
-with st.expander("Expand Me"):
-    st.markdown("""
-    This application helps automate tip allocation and cash distribution for service teams.
-    
-    Key functions:
-    1. Process partner hours from PDF/image input
-    2. Calculate individual tips based on hours worked
-    3. Distribute bills equitably among partners
-    4. Output detailed distribution breakdown per partner
-    """)
+st.markdown("""
+This application helps automate tip allocation and cash distribution for service teams.
+
+Key functions:
+1. Process partner hours from PDF/image input
+2. Calculate individual tips based on hours worked
+3. Distribute bills equitably among partners
+4. Output detailed distribution breakdown per partner
+""")
 
 # Initialize session state variables
 if "ocr_result" not in st.session_state:
@@ -55,13 +54,6 @@ with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
     st.title("TipJar")
     st.caption("Made by William Walsh 2025")
-    
-    # Theme toggle (this doesn't actually change the theme since Streamlit's theming is controlled by config.toml,
-    # but it provides a visual indication to the user that dark mode is supported)
-    st.markdown("---")
-    st.subheader("App Settings")
-    theme_mode = st.selectbox("Theme", ["Dark Mode (Default)", "Light Mode"], 
-                             help="Appearance preference is applied on reload")
     
     st.markdown("---")
     st.header("API Configuration")
@@ -514,7 +506,6 @@ st.markdown(
     """
     <div style="text-align: center; color: #00704A; margin-top: 30px;">
         <p>TipJar © 2025 | Made with 💚 by William Walsh</p>
-        <p style="font-size: 0.8em;">Powered by Streamlit | Starbucks-inspired theme</p>
     </div>
     """, 
     unsafe_allow_html=True
