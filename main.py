@@ -506,7 +506,7 @@ st.markdown("---")
 st.markdown(
     """
     <div style="text-align: center; color: #00704A; margin-top: 30px;">
-        <p>TipJar © 2025 | Made with 💚 by William Walsh</p>
+        <p>TipJar v1.1 © 2025 | Made with 💚 by William Walsh</p>
     </div>
     """, 
     unsafe_allow_html=True
