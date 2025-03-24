@@ -142,10 +142,8 @@ else:
         st.caption("Made by William Walsh")
         st.caption("Starbucks Store# 69600")
 
-st.markdown("""\"If theres a Will, Theres a Way!\" -Lauren 2025""")
+st.markdown("""<div style="font-size: 1.5rem; font-style: italic; margin: 1.5rem 0; color: #00704A; text-align: center;">\"If theres a Will, Theres a Way!\" -Lauren 2025</div>""", unsafe_allow_html=True)
 st.markdown("""
-This application helps automate tip allocation and cash distribution for service teams.
-
 Key functions:
 1. Process partner hours from PDF/image input
 2. Calculate individual tips based on hours worked
