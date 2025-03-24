@@ -139,7 +139,7 @@ st.markdown("""
     
     /* Make radio button labels more visible */
     .stRadio label {
-        color: white !important;
+        color: #333 !important;
         font-weight: 500 !important;
     }
     
@@ -150,7 +150,7 @@ st.markdown("""
     
     /* Section headers */
     .section-header {
-        color: white !important;
+        color: #333 !important;
         font-weight: 500;
         margin-bottom: 0.5rem;
     }
@@ -294,6 +294,14 @@ st.markdown("""
     .stSpinner > div {
         border-color: var(--primary-color) transparent;
     }
+    
+    /* Background for selection areas */
+    .selection-area {
+        background-color: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -366,6 +374,7 @@ MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 # Choose AI Provider - different layout for mobile vs desktop
+st.markdown('<div class="selection-area">', unsafe_allow_html=True)
 if is_mobile():
     # More compact layout for mobile
     st.markdown('<p class="section-header">Select AI Provider:</p>', unsafe_allow_html=True)
@@ -390,6 +399,7 @@ else:
     with col2:
         st.markdown('<p class="section-header">Select source type</p>', unsafe_allow_html=True)
         source_type = st.radio("", ("URL", "Local Upload"), label_visibility="collapsed")
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Check if selected provider's API key is available
 if ai_provider == "Mistral":
