@@ -44,7 +44,6 @@ st.markdown("""
         --light-bg: #f9f9f9;
         --card-shadow: 0 4px 8px rgba(0,0,0,0.08);
         --border-color: #e6e6e6;
-        background-color: #111827 !important;
     }
     
     /* Professional styling and centering */
@@ -123,12 +122,6 @@ st.markdown("""
         border-radius: 8px !important;
         border-color: var(--border-color) !important;
         transition: all 0.2s ease !important;
-        background-color: transparent !important;
-        color: white !important;
-    }
-    
-    input[type="text"]::placeholder, input[type="number"]::placeholder {
-        color: rgba(255, 255, 255, 0.6) !important;
     }
     
     input[type="text"]:focus, input[type="number"]:focus {
@@ -150,56 +143,29 @@ st.markdown("""
         font-weight: 500 !important;
     }
     
-    /* Radio button section headers */
-    .stRadio p {
-        color: white !important;
-        font-weight: 500 !important;
-        margin-bottom: 5px !important;
-    }
-    
-    /* Radio button options */
-    .stRadio [data-testid="stMarkdownContainer"] p {
-        color: white !important;
-    }
-    
     /* Highlight selected radio options */
     .stRadio label[data-baseweb="radio"] input:checked + div {
         border-color: var(--accent-color) !important;
     }
     
+    /* Section headers */
+    .section-header {
+        color: white !important;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
     /* File uploader */
     .stFileUploader > div {
-        background-color: transparent !important;
+        background-color: white !important;
         border-radius: 10px !important;
         padding: 1rem !important;
         border: 2px dashed var(--border-color) !important;
         transition: all 0.2s ease !important;
-        color: white !important;
     }
     
     .stFileUploader > div:hover {
         border-color: var(--primary-color) !important;
-    }
-    
-    /* Expander elements */
-    .streamlit-expanderHeader {
-        background-color: transparent !important;
-        color: white !important;
-    }
-    
-    .streamlit-expanderContent {
-        background-color: transparent !important;
-        border-color: var(--border-color) !important;
-    }
-    
-    /* Number input background */
-    [data-baseweb="input"] {
-        background-color: transparent !important;
-    }
-    
-    /* Labels for inputs */
-    .stTextInput label, .stNumberInput label {
-        color: white !important;
     }
     
     /* Mobile detection and responsive design */
@@ -358,6 +324,7 @@ if 'mobile_detected' not in st.session_state:
 
 # Title section with enhanced visuals
 st.markdown('<div class="header-container">', unsafe_allow_html=True)
+st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
 st.markdown('<h1>TipJar</h1>', unsafe_allow_html=True)
 st.markdown('<p class="caption">Made by William Walsh</p>', unsafe_allow_html=True)
 st.markdown('<p class="caption">Starbucks Store# 69600</p>', unsafe_allow_html=True)
@@ -401,21 +368,28 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 # Choose AI Provider - different layout for mobile vs desktop
 if is_mobile():
     # More compact layout for mobile
-    ai_provider = st.radio("Select AI Provider:", ("Mistral", "Gemini"), horizontal=True)
+    st.markdown('<p class="section-header">Select AI Provider:</p>', unsafe_allow_html=True)
+    ai_provider = st.radio("", ("Mistral", "Gemini"), horizontal=True, label_visibility="collapsed")
     
     # For mobile, stack the file type and source type selection vertically
-    file_type = st.radio("File type:", ("PDF", "Image"), horizontal=True)
-    source_type = st.radio("Source:", ("URL", "Local Upload"), horizontal=True)
+    st.markdown('<p class="section-header">File type:</p>', unsafe_allow_html=True)
+    file_type = st.radio("", ("PDF", "Image"), horizontal=True, label_visibility="collapsed")
+    
+    st.markdown('<p class="section-header">Source:</p>', unsafe_allow_html=True)
+    source_type = st.radio("", ("URL", "Local Upload"), horizontal=True, label_visibility="collapsed")
 else:
     # Desktop layout
-    ai_provider = st.radio("Select AI Provider", ("Mistral", "Gemini"))
+    st.markdown('<p class="section-header">Select AI Provider</p>', unsafe_allow_html=True)
+    ai_provider = st.radio("", ("Mistral", "Gemini"), label_visibility="collapsed")
     
     # Side-by-side for desktop
     col1, col2 = st.columns(2)
     with col1:
-        file_type = st.radio("Select file type", ("PDF", "Image"))
+        st.markdown('<p class="section-header">Select file type</p>', unsafe_allow_html=True)
+        file_type = st.radio("", ("PDF", "Image"), label_visibility="collapsed")
     with col2:
-        source_type = st.radio("Select source type", ("URL", "Local Upload"))
+        st.markdown('<p class="section-header">Select source type</p>', unsafe_allow_html=True)
+        source_type = st.radio("", ("URL", "Local Upload"), label_visibility="collapsed")
 
 # Check if selected provider's API key is available
 if ai_provider == "Mistral":
