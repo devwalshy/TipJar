@@ -56,6 +56,11 @@ st.markdown("""
             padding-right: 10px !important;
             max-width: 95vw !important;
         }
+        
+        /* Hide sidebar on mobile by default */
+        section[data-testid="stSidebar"] {
+            display: none !important;
+        }
     }
     
     /* Starbucks brand styling */
@@ -168,19 +173,6 @@ with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
     st.title("TipJar")
     st.caption("Made by William Walsh 2025")
-    
-    st.markdown("---")
-    st.header("API Configuration")
-    st.write("API keys are loaded from .env file")
-    
-    # Show API key status and option to update
-    mistral_key_set = bool(MISTRAL_API_KEY)
-    gemini_key_set = bool(GEMINI_API_KEY)
-    
-    st.write(f"Mistral API Key: {'✅ Configured' if mistral_key_set else '❌ Not Configured'}")
-    st.write(f"Gemini API Key: {'✅ Configured' if gemini_key_set else '❌ Not Configured'}")
-    
-    st.write("To update API keys, edit the .env file in the application directory.")
     
     # Add Starbucks-inspired footer to sidebar
     st.markdown("---")
@@ -589,6 +581,8 @@ if st.session_state["ocr_result"]:
                     exact_amount = (float(partner["hours"]) / total_hours) * total_tip_amount
                     # Store both exact and rounded amounts
                     partner["exact_tip_amount"] = exact_amount
+                    # Calculate hourly rate
+                    partner["hourly_rate"] = exact_amount / float(partner["hours"])
                     # Round to nearest dollar (Starbucks policy)
                     # Examples: $23.89 rounds to $24, $12.12 rounds to $12
                     partner["tip_amount"] = round(exact_amount)
@@ -644,7 +638,8 @@ if st.session_state["ocr_result"]:
                     # Format for copy-paste
                     partner["formatted_output"] = (
                         f"Partner Name: {partner['name']} | #: {partner['number']} | "
-                        f"Hours: {partner['hours']} | Exact: ${partner['exact_tip_amount']:.2f} | "
+                        f"Hours: {partner['hours']} | Rate: ${partner['hourly_rate']:.2f}/hr | "
+                        f"Exact: ${partner['exact_tip_amount']:.2f} | "
                         f"Rounded: ${partner['tip_amount']} | Bills: {partner['bills_text']}"
                     )
                 
@@ -677,6 +672,7 @@ if st.session_state["ocr_result"]:
                 "Partner Name": partner["name"],
                 "#": partner["number"],
                 "Hours": partner["hours"],
+                "Hourly Rate": f"${partner['hourly_rate']:.2f}",
                 "Exact Amount": f"${partner['exact_tip_amount']:.2f}",
                 "Rounded": f"${partner['tip_amount']}",
                 "Bills": partner["bills_text"]
@@ -691,24 +687,20 @@ if st.session_state["ocr_result"]:
                         <h4 style="margin: 0; color: #00704A;">{partner['Partner Name']} <span style="color: #666;">#{partner['#']}</span></h4>
                         <div style="display: flex; justify-content: space-between; margin-top: 5px;">
                             <div>{partner['Hours']} hours</div>
+                            <div style="color: #666; font-size: 0.9em;">Rate: {partner['Hourly Rate']}/hr</div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 5px;">
                             <div>
                                 <span style="color: #666; font-size: 0.9em;">${"{:.2f}".format(float(partner['Exact Amount'][1:]))}</span> → 
                                 <span style="font-weight: bold;">{partner['Rounded']}</span>
                             </div>
-                        </div>
-                        <div style="margin-top: 5px;">
-                            <small>Bills: {partner['Bills']}</small>
+                            <div style="font-size: 0.9em;">Bills: {partner['Bills']}</div>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
         else:
             # Desktop gets the full table
             st.table(tip_data)
-        
-        # Display copy-paste ready format
-        st.subheader("Copy-paste ready format:")
-        for partner in st.session_state["distributed_tips"]:
-            st.text(partner["formatted_output"])
         
         # Save distribution to history
         if st.button("Save to History", use_container_width=is_mobile()):
