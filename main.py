@@ -125,22 +125,15 @@ if 'mobile_detected' not in st.session_state:
     </div>
     """, unsafe_allow_html=True)
 
-# Title section - same for both mobile and desktop
-if is_mobile():
-    # For mobile: centered logo and stacked layout
-    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=80)
-    st.title("TipJar")
-    st.caption("Made by William Walsh")
-    st.caption("Starbucks Store# 69600")
-else:
-    # For desktop: logo and title side by side
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
-    with col2:
-        st.title("TipJar")
-        st.caption("Made by William Walsh")
-        st.caption("Starbucks Store# 69600")
+# Title section with centered elements for all devices
+st.markdown("""
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 1rem;">
+    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png" width="100" style="margin-bottom: 0.5rem;">
+    <h1 style="margin: 0.5rem 0; color: #00704A; text-align: center;">TipJar</h1>
+    <p style="margin: 0.2rem 0; color: #444; text-align: center;">Made by William Walsh</p>
+    <p style="margin: 0.2rem 0; color: #444; text-align: center;">Starbucks Store# 69600</p>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("""<div style="font-size: 1.5rem; font-style: italic; margin: 1.5rem 0; color: #00704A; text-align: center;">\"If theres a Will, Theres a Way!\" -Lauren 2025</div>""", unsafe_allow_html=True)
 st.markdown("""
