@@ -139,13 +139,25 @@ st.markdown("""
     
     /* Make radio button labels more visible */
     .stRadio label {
-        color: #333 !important;
+        color: white !important;
         font-weight: 500 !important;
+    }
+    
+    /* Radio button section headers */
+    .stRadio p {
+        color: white !important;
+        font-weight: 500 !important;
+        margin-bottom: 5px !important;
+    }
+    
+    /* Radio button options */
+    .stRadio [data-testid="stMarkdownContainer"] p {
+        color: white !important;
     }
     
     /* Highlight selected radio options */
     .stRadio label[data-baseweb="radio"] input:checked + div {
-        border-color: var(--primary-color) !important;
+        border-color: var(--accent-color) !important;
     }
     
     /* File uploader */
@@ -317,9 +329,7 @@ if 'mobile_detected' not in st.session_state:
 
 # Title section with enhanced visuals
 st.markdown('<div class="header-container">', unsafe_allow_html=True)
-col1, col2, col3 = st.columns([1, 3, 1])
-with col2:
-    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
+st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
 st.markdown('<h1>TipJar</h1>', unsafe_allow_html=True)
 st.markdown('<p class="caption">Made by William Walsh</p>', unsafe_allow_html=True)
 st.markdown('<p class="caption">Starbucks Store# 69600</p>', unsafe_allow_html=True)
