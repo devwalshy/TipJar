@@ -130,7 +130,8 @@ if is_mobile():
     # For mobile: centered logo and stacked layout
     st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=80)
     st.title("TipJar")
-    st.caption("Made by William Walsh 2025")
+    st.caption("Made by William Walsh")
+    st.caption("Starbucks Store# 69600")
 else:
     # For desktop: logo and title side by side
     col1, col2 = st.columns([1, 4])
@@ -138,8 +139,10 @@ else:
         st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
     with col2:
         st.title("TipJar")
-        st.caption("Made by William Walsh 2025")
+        st.caption("Made by William Walsh")
+        st.caption("Starbucks Store# 69600")
 
+st.markdown("""\"If theres a Will, Theres a Way!\" -Lauren 2025""")
 st.markdown("""
 This application helps automate tip allocation and cash distribution for service teams.
 
@@ -731,7 +734,8 @@ st.markdown("---")
 st.markdown(
     """
     <div style="text-align: center; color: #00704A; margin-top: 30px;">
-        <p>TipJar v1.2 © 2025 | Made with 💚 by William Walsh</p>
+        <p>TipJar v1.2 | Made with 💚 by William Walsh</p>
+        <p>Starbucks Store# 69600</p>
     </div>
     """, 
     unsafe_allow_html=True
