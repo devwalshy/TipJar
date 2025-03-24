@@ -129,12 +129,23 @@ st.markdown("""
         box-shadow: 0 0 0 1px var(--primary-color) !important;
     }
     
-    /* Radio buttons */
+    /* Radio buttons - remove white background boxes */
     .stRadio > div {
-        background-color: white !important;
-        border-radius: 10px !important;
+        background-color: transparent !important;
+        border-radius: 0 !important;
         padding: 0.5rem !important;
-        box-shadow: var(--card-shadow) !important;
+        box-shadow: none !important;
+    }
+    
+    /* Make radio button labels more visible */
+    .stRadio label {
+        color: #333 !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Highlight selected radio options */
+    .stRadio label[data-baseweb="radio"] input:checked + div {
+        border-color: var(--primary-color) !important;
     }
     
     /* File uploader */
