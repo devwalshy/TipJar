@@ -38,14 +38,23 @@ st.markdown("""
     /* Base styles for all devices */
     .stApp {
         max-width: 100%;
+        --primary-color: #00704A;
+        --accent-color: #f7c36b;
+        --secondary-color: #1e3932;
+        --light-bg: #f9f9f9;
+        --card-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        --border-color: #e6e6e6;
     }
     
     /* Professional styling and centering */
     h1 {
-        color: #00704A !important;
+        color: var(--primary-color) !important;
         text-align: center !important;
         margin-bottom: 0 !important;
         padding-bottom: 0 !important;
+        font-weight: 700 !important;
+        font-size: 2.4rem !important;
+        letter-spacing: -0.5px;
     }
     
     .caption {
@@ -60,17 +69,85 @@ st.markdown("""
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 1rem 0;
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid #e6e6e6;
+        padding: 1.5rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--border-color);
+        background: linear-gradient(180deg, var(--light-bg) 0%, white 100%);
     }
     
     /* Professional subheadings */
     h2, h3, h4 {
-        color: #00704A !important;
+        color: var(--primary-color) !important;
         margin-top: 1.5rem !important;
         margin-bottom: 1rem !important;
         font-weight: 600 !important;
+    }
+    
+    h2 {
+        font-size: 1.8rem !important;
+        border-bottom: 2px solid var(--accent-color);
+        padding-bottom: 0.5rem;
+        display: inline-block;
+    }
+    
+    h3 {
+        font-size: 1.4rem !important;
+    }
+    
+    /* Custom button styling */
+    .stButton > button {
+        border-radius: 50px !important;
+        background: var(--primary-color) !important;
+        color: white !important;
+        font-weight: 500 !important;
+        padding: 0.5rem 2rem !important;
+        border: none !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .stButton > button:hover {
+        background: var(--secondary-color) !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    .stButton > button:active {
+        transform: translateY(1px) !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+    }
+    
+    /* Enhanced form controls */
+    input[type="text"], input[type="number"], .stSelectbox > div > div {
+        border-radius: 8px !important;
+        border-color: var(--border-color) !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    input[type="text"]:focus, input[type="number"]:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 1px var(--primary-color) !important;
+    }
+    
+    /* Radio buttons */
+    .stRadio > div {
+        background-color: white !important;
+        border-radius: 10px !important;
+        padding: 0.5rem !important;
+        box-shadow: var(--card-shadow) !important;
+    }
+    
+    /* File uploader */
+    .stFileUploader > div {
+        background-color: white !important;
+        border-radius: 10px !important;
+        padding: 1rem !important;
+        border: 2px dashed var(--border-color) !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    .stFileUploader > div:hover {
+        border-color: var(--primary-color) !important;
     }
     
     /* Mobile detection and responsive design */
@@ -82,8 +159,8 @@ st.markdown("""
         
         /* Improve button touch targets */
         button, [role="button"] {
-            min-height: 44px !important;
-            padding: 10px !important;
+            min-height: 48px !important;
+            padding: 12px !important;
         }
         
         /* Better spacing for mobile UI */
@@ -103,62 +180,171 @@ st.markdown("""
             padding-right: 10px !important;
             max-width: 95vw !important;
         }
+        
+        h1 {
+            font-size: 2rem !important;
+        }
+        
+        h2 {
+            font-size: 1.5rem !important;
+        }
     }
     
-    /* Starbucks brand styling */
-    .stButton button {
-        border-radius: 20px;
-        background-color: #00704A !important;
-        color: white !important;
-        font-weight: 500;
-    }
-    
-    /* Custom text colors */
-    h1, h2, h3 {
-        color: #00704A !important;
-    }
-    
-    /* Consistent table styling */
+    /* Enhanced table styling */
     table {
         width: 100%;
-        border-collapse: collapse;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
     }
     
     table th {
-        background-color: #f0f0f0;
-        padding: 8px;
+        background-color: var(--secondary-color);
+        color: white;
+        padding: 12px;
         text-align: left;
-        border-bottom: 2px solid #00704A;
+        font-weight: 600;
+    }
+    
+    table tr:nth-child(even) {
+        background-color: var(--light-bg);
     }
     
     table td {
-        padding: 8px;
-        border-bottom: 1px solid #e6e6e6;
+        padding: 12px;
+        border-bottom: 1px solid var(--border-color);
     }
     
-    /* Container styling */
+    table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    /* Enhanced card styling */
     .custom-card {
-        border: 1px solid rgba(49, 51, 63, 0.2);
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 15px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: var(--card-shadow);
+        background-color: white;
+        transition: all 0.2s ease;
+    }
+    
+    .custom-card:hover {
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
     }
     
     /* App description styling */
     .app-description {
-        background-color: #f8f9fa;
-        padding: 15px;
-        border-radius: 5px;
-        margin: 20px 0;
+        background: linear-gradient(120deg, #f9f9f9 0%, #f0f0f0 100%);
+        padding: 25px;
+        border-radius: 12px;
+        margin: 25px auto;
         text-align: center;
+        max-width: 900px;
+        box-shadow: var(--card-shadow);
+        border-left: 4px solid var(--primary-color);
     }
     
     .app-description ul {
         display: inline-block;
         text-align: left;
-        margin: 10px auto;
+        margin: 15px auto;
         padding-left: 20px;
+    }
+    
+    .app-description li {
+        margin-bottom: 8px;
+        position: relative;
+        padding-left: 10px;
+    }
+    
+    .app-description li:before {
+        content: "•";
+        color: var(--primary-color);
+        font-weight: bold;
+        position: absolute;
+        left: -12px;
+    }
+    
+    /* Visual separator */
+    .separator {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+        margin: 30px auto;
+        width: 80%;
+    }
+    
+    /* Tip distribution card styling */
+    .tip-card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 15px;
+        border-left: 4px solid var(--primary-color);
+        transition: all 0.2s ease;
+    }
+    
+    .tip-card:hover {
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    
+    .tip-card h4 {
+        margin: 0 0 10px 0;
+        color: var(--primary-color);
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 5px;
+    }
+    
+    .tip-card .amount {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--secondary-color);
+    }
+    
+    .tip-card .details {
+        display: flex;
+        justify-content: space-between;
+        color: #666;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+    
+    /* Tip policy callout box */
+    .policy-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid var(--accent-color);
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+    }
+    
+    .policy-box strong {
+        color: var(--secondary-color);
+    }
+    
+    /* Expander styling */
+    .streamlit-expander {
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        margin-bottom: 15px;
+        overflow: hidden;
+    }
+    
+    .streamlit-expander > div:first-child {
+        background-color: var(--light-bg);
+        padding: 10px 15px;
+        cursor: pointer;
+    }
+    
+    /* Loading spinner */
+    .stSpinner > div {
+        border-color: var(--primary-color) transparent;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -188,25 +374,27 @@ if 'mobile_detected' not in st.session_state:
     </div>
     """, unsafe_allow_html=True)
 
-# Title section - using a custom centered layout
+# Title section with enhanced visuals
 st.markdown('<div class="header-container">', unsafe_allow_html=True)
 st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
 st.markdown('<h1>TipJar</h1>', unsafe_allow_html=True)
 st.markdown('<p class="caption">Made by William Walsh</p>', unsafe_allow_html=True)
 st.markdown('<p class="caption">Starbucks Store# 69600</p>', unsafe_allow_html=True)
+st.markdown('<p class="caption"><small>v1.2</small></p>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# App description with improved styling
+# App description with enhanced styling and icons
 st.markdown('<div class="app-description">', unsafe_allow_html=True)
 st.markdown("""
-This application helps automate tip allocation and cash distribution for service teams.
+<h3 style="margin-top:0;">Your Partner Tip Distribution Solution</h3>
+<p>This application streamlines tip allocation and cash distribution for Starbucks service teams.</p>
 
-**Key functions:**
+**Key features:**
 <ul>
-<li>Process partner hours from PDF/image input</li>
-<li>Calculate individual tips based on hours worked</li>
-<li>Distribute bills equitably among partners</li>
-<li>Output detailed distribution breakdown per partner</li>
+<li>📝 Process partner hours from PDF/image input</li>
+<li>💰 Calculate individual tips based on hours worked</li>
+<li>💵 Distribute bills equitably among partners</li>
+<li>📊 Output detailed distribution breakdown per partner</li>
 </ul>
 """, unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
@@ -708,12 +896,13 @@ if st.session_state["ocr_result"]:
     
     # Display Tip Distribution Results
     if st.session_state.get("tips_calculated", False):
-        st.subheader("Tip Distribution Results")
+        st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
+        st.markdown('<h2 style="text-align:center;">Tip Distribution Results</h2>', unsafe_allow_html=True)
         
-        # Add explanation about rounding policy
+        # Add explanation about rounding policy with enhanced styling
         st.markdown("""
-        <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-            <strong>Rounding Policy:</strong> Following Starbucks standard practice, tip amounts are rounded to the nearest dollar.
+        <div class="policy-box">
+            <strong>🔄 Rounding Policy:</strong> Following Starbucks standard practice, tip amounts are rounded to the nearest dollar.
             For example, $23.89 rounds up to $24, while $12.12 rounds down to $12.
         </div>
         """, unsafe_allow_html=True)
@@ -731,58 +920,91 @@ if st.session_state["ocr_result"]:
                 "Bills": partner["bills_text"]
             })
         
-        # For mobile, we can use a simplified view
+        # For mobile, use enhanced card view
         if is_mobile():
             for partner in tip_data:
                 with st.container():
                     st.markdown(f"""
-                    <div class="custom-card">
-                        <h4 style="margin: 0; color: #00704A;">{partner['Partner Name']} <span style="color: #666;">#{partner['#']}</span></h4>
-                        <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                    <div class="tip-card">
+                        <h4>👤 {partner['Partner Name']} <span style="color: #666; font-size: 0.9em;">#{partner['#']}</span></h4>
+                        <div class="amount">{partner['Rounded']}</div>
+                        <div class="details">
                             <div>{partner['Hours']} hours</div>
-                            <div style="color: #666; font-size: 0.9em;">Rate: {partner['Hourly Rate']}/hr</div>
+                            <div>Rate: {partner['Hourly Rate']}/hr</div>
                         </div>
-                        <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                        <hr style="margin: 10px 0; border: 0; height: 1px; background: #eee;">
+                        <div class="details">
                             <div>
-                                <span style="color: #666; font-size: 0.9em;">${"{:.2f}".format(float(partner['Exact Amount'][1:]))}</span> → 
-                                <span style="font-weight: bold;">{partner['Rounded']}</span>
+                                <span style="color: #666;">Exact: ${"{:.2f}".format(float(partner['Exact Amount'][1:]))}</span>
                             </div>
-                            <div style="font-size: 0.9em;">Bills: {partner['Bills']}</div>
+                            <div>💵 {partner['Bills']}</div>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
         else:
-            # Desktop gets the full table
+            # Desktop gets the enhanced table
             st.table(tip_data)
         
-        # Save distribution to history
-        if st.button("Save to History", use_container_width=is_mobile()):
-            distribution = {
-                "week": st.session_state["week_counter"] - 1,
-                "total_amount": st.session_state["total_tip_amount"],
-                "total_hours": st.session_state["total_hours"],
-                "partners": st.session_state["distributed_tips"]
-            }
-            
-            if "tips_history" not in st.session_state:
-                st.session_state["tips_history"] = []
-            
-            st.session_state["tips_history"].append(distribution)
-            st.success("Distribution saved to history!")
+        # Save distribution to history with improved button styling
+        col1, col2, col3 = st.columns([1,2,1])
+        with col2:
+            if st.button("💾 Save to History", use_container_width=True):
+                distribution = {
+                    "week": st.session_state["week_counter"] - 1,
+                    "total_amount": st.session_state["total_tip_amount"],
+                    "total_hours": st.session_state["total_hours"],
+                    "partners": st.session_state["distributed_tips"]
+                }
+                
+                if "tips_history" not in st.session_state:
+                    st.session_state["tips_history"] = []
+                
+                st.session_state["tips_history"].append(distribution)
+                st.success("✅ Distribution saved to history!")
     
-    # History section
+    # History section with enhanced styling
     if "tips_history" in st.session_state and st.session_state["tips_history"]:
-        with st.expander("View Distribution History"):
+        st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
+        with st.expander("📜 View Distribution History"):
             for i, dist in enumerate(st.session_state["tips_history"]):
-                st.write(f"### Week {dist['week']}")
-                st.write(f"Total: ${dist['total_amount']} for {dist['total_hours']} hours")
+                st.markdown(f"""
+                <div class="custom-card">
+                    <h3 style="margin-top:0;">Week {dist['week']}</h3>
+                    <p><strong>Total:</strong> ${dist['total_amount']} for {dist['total_hours']} hours</p>
+                    <div style="background-color: var(--light-bg); border-radius: 8px; padding: 10px; margin-top: 10px;">
+                """, unsafe_allow_html=True)
                 
                 for partner in dist["partners"]:
-                    st.write(f"{partner['name']} | #{partner['number']} | {partner['hours']} hours | ${partner['tip_amount']} | {partner['bills_text']}")
+                    st.markdown(f"""
+                    <p style="margin: 5px 0; padding-bottom: 5px; border-bottom: 1px solid #eee;">
+                        <span style="font-weight: 500;">{partner['name']}</span> | 
+                        #{partner['number']} | 
+                        {partner['hours']} hrs | 
+                        <span style="color: var(--primary-color); font-weight: 500;">${partner['tip_amount']}</span> | 
+                        <span style="color: #666; font-size: 0.9em;">{partner['bills_text']}</span>
+                    </p>
+                    """, unsafe_allow_html=True)
                 
-                st.markdown("---")
+                st.markdown("</div></div>", unsafe_allow_html=True)
     
-    # Download link for OCR result
-    b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
-    href = f'<a href="data:file/txt;base64,{b64}" download="ocr_result.txt">Download OCR Result</a>'
-    st.markdown(href, unsafe_allow_html=True) 
+    # Footer with improved styling
+    st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="text-align: center; color: #666; padding: 10px; font-size: 0.8em;">
+        <p>TipJar v1.2 | &copy; 2023-2024 | Designed for Starbucks Partners</p>
+        <p style="font-size: 0.9em;">💰 Making tip distribution fair and transparent</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Download link for OCR result with improved styling
+    if st.session_state.get("ocr_result"):
+        b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
+        st.markdown(f"""
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="data:file/txt;base64,{b64}" 
+               download="ocr_result.txt"
+               style="text-decoration: none; color: var(--primary-color); font-size: 0.9em;">
+               📄 Download OCR Result
+            </a>
+        </div>
+        """, unsafe_allow_html=True) 
