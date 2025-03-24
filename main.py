@@ -44,6 +44,7 @@ st.markdown("""
         --light-bg: #f9f9f9;
         --card-shadow: 0 4px 8px rgba(0,0,0,0.08);
         --border-color: #e6e6e6;
+        background-color: #111827 !important;
     }
     
     /* Professional styling and centering */
@@ -122,6 +123,12 @@ st.markdown("""
         border-radius: 8px !important;
         border-color: var(--border-color) !important;
         transition: all 0.2s ease !important;
+        background-color: transparent !important;
+        color: white !important;
+    }
+    
+    input[type="text"]::placeholder, input[type="number"]::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
     }
     
     input[type="text"]:focus, input[type="number"]:focus {
@@ -162,15 +169,37 @@ st.markdown("""
     
     /* File uploader */
     .stFileUploader > div {
-        background-color: white !important;
+        background-color: transparent !important;
         border-radius: 10px !important;
         padding: 1rem !important;
         border: 2px dashed var(--border-color) !important;
         transition: all 0.2s ease !important;
+        color: white !important;
     }
     
     .stFileUploader > div:hover {
         border-color: var(--primary-color) !important;
+    }
+    
+    /* Expander elements */
+    .streamlit-expanderHeader {
+        background-color: transparent !important;
+        color: white !important;
+    }
+    
+    .streamlit-expanderContent {
+        background-color: transparent !important;
+        border-color: var(--border-color) !important;
+    }
+    
+    /* Number input background */
+    [data-baseweb="input"] {
+        background-color: transparent !important;
+    }
+    
+    /* Labels for inputs */
+    .stTextInput label, .stNumberInput label {
+        color: white !important;
     }
     
     /* Mobile detection and responsive design */
