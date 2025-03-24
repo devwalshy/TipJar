@@ -21,151 +21,9 @@ load_dotenv()
 # Add custom CSS for better responsiveness
 st.markdown("""
 <style>
-    /* Hide sidebar completely */
-    [data-testid="stSidebar"] {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    /* Ensure main content spans full width */
-    .stApp > header + div > div {
-        width: 100% !important;
-    }
-    
     /* Base styles for all devices */
     .stApp {
         max-width: 100%;
-        --primary-color: #00704A;
-        --accent-color: #f7c36b;
-        --secondary-color: #1e3932;
-        --light-bg: #f9f9f9;
-        --card-shadow: 0 4px 8px rgba(0,0,0,0.08);
-        --border-color: #e6e6e6;
-    }
-    
-    /* Professional styling and centering */
-    h1 {
-        color: var(--primary-color) !important;
-        text-align: center !important;
-        margin-bottom: 0 !important;
-        padding-bottom: 0 !important;
-        font-weight: 700 !important;
-        font-size: 2.4rem !important;
-        letter-spacing: -0.5px;
-    }
-    
-    .caption {
-        text-align: center !important;
-        color: white !important;
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-    }
-    
-    .header-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 1.5rem 0;
-        margin-bottom: 2rem;
-        border-bottom: 1px solid var(--border-color);
-        background: linear-gradient(180deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    }
-    
-    /* Professional subheadings */
-    h2, h3, h4 {
-        color: var(--primary-color) !important;
-        margin-top: 1.5rem !important;
-        margin-bottom: 1rem !important;
-        font-weight: 600 !important;
-    }
-    
-    h2 {
-        font-size: 1.8rem !important;
-        border-bottom: 2px solid var(--accent-color);
-        padding-bottom: 0.5rem;
-        display: inline-block;
-    }
-    
-    h3 {
-        font-size: 1.4rem !important;
-    }
-    
-    /* Custom button styling */
-    .stButton > button {
-        border-radius: 50px !important;
-        background: var(--primary-color) !important;
-        color: white !important;
-        font-weight: 500 !important;
-        padding: 0.5rem 2rem !important;
-        border: none !important;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
-        transition: all 0.2s ease !important;
-    }
-    
-    .stButton > button:hover {
-        background: var(--secondary-color) !important;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
-        transform: translateY(-1px) !important;
-    }
-    
-    .stButton > button:active {
-        transform: translateY(1px) !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-    }
-    
-    /* Enhanced form controls */
-    input[type="text"], input[type="number"], .stSelectbox > div > div {
-        border-radius: 8px !important;
-        border-color: var(--border-color) !important;
-        transition: all 0.2s ease !important;
-    }
-    
-    input[type="text"]:focus, input[type="number"]:focus {
-        border-color: var(--primary-color) !important;
-        box-shadow: 0 0 0 1px var(--primary-color) !important;
-    }
-    
-    /* Radio buttons - remove white background boxes */
-    .stRadio > div {
-        background-color: transparent !important;
-        border-radius: 0 !important;
-        padding: 0.5rem !important;
-        box-shadow: none !important;
-    }
-    
-    /* Make radio button labels more visible */
-    .stRadio label {
-        color: #333 !important;
-        font-weight: 500 !important;
-    }
-    
-    /* Highlight selected radio options */
-    .stRadio label[data-baseweb="radio"] input:checked + div {
-        border-color: var(--accent-color) !important;
-    }
-    
-    /* Section headers */
-    .section-header {
-        color: #333 !important;
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-    }
-    
-    /* File uploader */
-    .stFileUploader > div {
-        background-color: white !important;
-        border-radius: 10px !important;
-        padding: 1rem !important;
-        border: 2px dashed var(--border-color) !important;
-        transition: all 0.2s ease !important;
-    }
-    
-    .stFileUploader > div:hover {
-        border-color: var(--primary-color) !important;
     }
     
     /* Mobile detection and responsive design */
@@ -177,8 +35,8 @@ st.markdown("""
         
         /* Improve button touch targets */
         button, [role="button"] {
-            min-height: 48px !important;
-            padding: 12px !important;
+            min-height: 44px !important;
+            padding: 10px !important;
         }
         
         /* Better spacing for mobile UI */
@@ -198,109 +56,38 @@ st.markdown("""
             padding-right: 10px !important;
             max-width: 95vw !important;
         }
-        
-        h1 {
-            font-size: 2rem !important;
-        }
-        
-        h2 {
-            font-size: 1.5rem !important;
-        }
     }
     
-    /* Enhanced table styling */
+    /* Starbucks brand styling */
+    .stButton button {
+        border-radius: 20px;
+        background-color: #00704A !important;
+        color: white !important;
+        font-weight: 500;
+    }
+    
+    /* Improve sidebar spacing */
+    section[data-testid="stSidebar"] {
+        background-color: #1e1e1e;
+        padding-top: 2rem;
+    }
+    
+    /* Custom text colors */
+    h1, h2, h3 {
+        color: #00704A !important;
+    }
+    
+    /* Consistent table styling */
     table {
         width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
+    }
+    
+    /* Container styling */
+    .custom-card {
+        border: 1px solid rgba(49, 51, 63, 0.2);
         border-radius: 10px;
-        overflow: hidden;
-        box-shadow: var(--card-shadow);
-    }
-    
-    table th {
-        background-color: var(--secondary-color);
-        color: white;
-        padding: 12px;
-        text-align: left;
-        font-weight: 600;
-    }
-    
-    table tr:nth-child(even) {
-        background-color: var(--light-bg);
-    }
-    
-    table td {
-        padding: 12px;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    table tr:last-child td {
-        border-bottom: none;
-    }
-    
-    /* App description styling */
-    .app-description {
-        background-color: transparent;
-        padding: 15px;
-        margin: 20px 0;
-        text-align: center;
-    }
-    
-    .app-description ul {
-        display: inline-block;
-        text-align: left;
-        margin: 15px auto;
-        padding-left: 20px;
-    }
-    
-    .app-description li {
-        margin-bottom: 8px;
-        position: relative;
-        padding-left: 10px;
-    }
-    
-    .app-description li:before {
-        content: "•";
-        color: var(--primary-color);
-        font-weight: bold;
-        position: absolute;
-        left: -12px;
-    }
-    
-    /* Visual separator */
-    .separator {
-        height: 1px;
-        background: linear-gradient(90deg, transparent, var(--border-color), transparent);
-        margin: 30px auto;
-        width: 80%;
-    }
-    
-    /* Policy callout box */
-    .policy-box {
-        background-color: #f8f9fa;
-        border-left: 4px solid var(--accent-color);
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        font-size: 0.9rem;
-    }
-    
-    .policy-box strong {
-        color: var(--secondary-color);
-    }
-    
-    /* Loading spinner */
-    .stSpinner > div {
-        border-color: var(--primary-color) transparent;
-    }
-    
-    /* Background for selection areas */
-    .selection-area {
-        background-color: #f0f0f0;
         padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -330,28 +117,30 @@ if 'mobile_detected' not in st.session_state:
     </div>
     """, unsafe_allow_html=True)
 
-# Title section with enhanced visuals
-st.markdown('<div class="header-container">', unsafe_allow_html=True)
-st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
-st.markdown('<h1>TipJar</h1>', unsafe_allow_html=True)
-st.markdown('<p class="caption">Made by William Walsh</p>', unsafe_allow_html=True)
-st.markdown('<p class="caption">Starbucks Store# 69600</p>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+# Title section - same for both mobile and desktop
+if is_mobile():
+    # For mobile: centered logo and stacked layout
+    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=80)
+    st.title("TipJar")
+    st.caption("Made by William Walsh 2025")
+else:
+    # For desktop: logo and title side by side
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
+    with col2:
+        st.title("TipJar")
+        st.caption("Made by William Walsh 2025")
 
-# App description with simplified styling
-st.markdown('<div class="app-description">', unsafe_allow_html=True)
 st.markdown("""
-<h3 style="margin-top:0;">Tips Distribution</h3>
+This application helps automate tip allocation and cash distribution for service teams.
 
-**Key features:**
-<ul>
-<li>📝 Process partner hours from PDF/image input</li>
-<li>💰 Calculate individual tips based on hours worked</li>
-<li>💵 Distribute bills equitably among partners</li>
-<li>📊 Output detailed distribution breakdown per partner</li>
-</ul>
-""", unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+Key functions:
+1. Process partner hours from PDF/image input
+2. Calculate individual tips based on hours worked
+3. Distribute bills equitably among partners
+4. Output detailed distribution breakdown per partner
+""")
 
 # Initialize session state variables
 if "ocr_result" not in st.session_state:
@@ -373,33 +162,48 @@ if "gemini_chat" not in st.session_state:
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
+# Add config section in sidebar
+with st.sidebar:
+    # Add Starbucks-inspired branding
+    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
+    st.title("TipJar")
+    st.caption("Made by William Walsh 2025")
+    
+    st.markdown("---")
+    st.header("API Configuration")
+    st.write("API keys are loaded from .env file")
+    
+    # Show API key status and option to update
+    mistral_key_set = bool(MISTRAL_API_KEY)
+    gemini_key_set = bool(GEMINI_API_KEY)
+    
+    st.write(f"Mistral API Key: {'✅ Configured' if mistral_key_set else '❌ Not Configured'}")
+    st.write(f"Gemini API Key: {'✅ Configured' if gemini_key_set else '❌ Not Configured'}")
+    
+    st.write("To update API keys, edit the .env file in the application directory.")
+    
+    # Add Starbucks-inspired footer to sidebar
+    st.markdown("---")
+    st.markdown("<div style='text-align: center; color: #00704A;'>TipJar © 2025</div>", unsafe_allow_html=True)
+
 # Choose AI Provider - different layout for mobile vs desktop
-st.markdown('<div class="selection-area">', unsafe_allow_html=True)
 if is_mobile():
     # More compact layout for mobile
-    st.markdown('<p class="section-header">Select AI Provider:</p>', unsafe_allow_html=True)
-    ai_provider = st.radio("", ("Mistral", "Gemini"), horizontal=True, label_visibility="collapsed")
+    ai_provider = st.radio("Select AI Provider:", ("Mistral", "Gemini"), horizontal=True)
     
     # For mobile, stack the file type and source type selection vertically
-    st.markdown('<p class="section-header">File type:</p>', unsafe_allow_html=True)
-    file_type = st.radio("", ("PDF", "Image"), horizontal=True, label_visibility="collapsed")
-    
-    st.markdown('<p class="section-header">Source:</p>', unsafe_allow_html=True)
-    source_type = st.radio("", ("URL", "Local Upload"), horizontal=True, label_visibility="collapsed")
+    file_type = st.radio("File type:", ("PDF", "Image"), horizontal=True)
+    source_type = st.radio("Source:", ("URL", "Local Upload"), horizontal=True)
 else:
     # Desktop layout
-    st.markdown('<p class="section-header">Select AI Provider</p>', unsafe_allow_html=True)
-    ai_provider = st.radio("", ("Mistral", "Gemini"), label_visibility="collapsed")
+    ai_provider = st.radio("Select AI Provider", ("Mistral", "Gemini"))
     
     # Side-by-side for desktop
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown('<p class="section-header">Select file type</p>', unsafe_allow_html=True)
-        file_type = st.radio("", ("PDF", "Image"), label_visibility="collapsed")
+        file_type = st.radio("Select file type", ("PDF", "Image"))
     with col2:
-        st.markdown('<p class="section-header">Select source type</p>', unsafe_allow_html=True)
-        source_type = st.radio("", ("URL", "Local Upload"), label_visibility="collapsed")
-st.markdown('</div>', unsafe_allow_html=True)
+        source_type = st.radio("Select source type", ("URL", "Local Upload"))
 
 # Check if selected provider's API key is available
 if ai_provider == "Mistral":
@@ -785,8 +589,6 @@ if st.session_state["ocr_result"]:
                     exact_amount = (float(partner["hours"]) / total_hours) * total_tip_amount
                     # Store both exact and rounded amounts
                     partner["exact_tip_amount"] = exact_amount
-                    # Calculate hourly rate
-                    partner["hourly_rate"] = exact_amount / float(partner["hours"])
                     # Round to nearest dollar (Starbucks policy)
                     # Examples: $23.89 rounds to $24, $12.12 rounds to $12
                     partner["tip_amount"] = round(exact_amount)
@@ -842,8 +644,7 @@ if st.session_state["ocr_result"]:
                     # Format for copy-paste
                     partner["formatted_output"] = (
                         f"Partner Name: {partner['name']} | #: {partner['number']} | "
-                        f"Hours: {partner['hours']} | Rate: ${partner['hourly_rate']:.2f}/hr | "
-                        f"Exact: ${partner['exact_tip_amount']:.2f} | "
+                        f"Hours: {partner['hours']} | Exact: ${partner['exact_tip_amount']:.2f} | "
                         f"Rounded: ${partner['tip_amount']} | Bills: {partner['bills_text']}"
                     )
                 
@@ -859,13 +660,12 @@ if st.session_state["ocr_result"]:
     
     # Display Tip Distribution Results
     if st.session_state.get("tips_calculated", False):
-        st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
-        st.markdown('<h2 style="text-align:center;">Tip Distribution Results</h2>', unsafe_allow_html=True)
+        st.subheader("Tip Distribution Results")
         
-        # Add explanation about rounding policy with enhanced styling
+        # Add explanation about rounding policy
         st.markdown("""
-        <div class="policy-box">
-            <strong>🔄 Rounding Policy:</strong> Following Starbucks standard practice, tip amounts are rounded to the nearest dollar.
+        <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+            <strong>Rounding Policy:</strong> Following Starbucks standard practice, tip amounts are rounded to the nearest dollar.
             For example, $23.89 rounds up to $24, while $12.12 rounds down to $12.
         </div>
         """, unsafe_allow_html=True)
@@ -877,97 +677,78 @@ if st.session_state["ocr_result"]:
                 "Partner Name": partner["name"],
                 "#": partner["number"],
                 "Hours": partner["hours"],
-                "Hourly Rate": f"${partner['hourly_rate']:.2f}",
                 "Exact Amount": f"${partner['exact_tip_amount']:.2f}",
                 "Rounded": f"${partner['tip_amount']}",
                 "Bills": partner["bills_text"]
             })
         
-        # For mobile, use simplified view
+        # For mobile, we can use a simplified view
         if is_mobile():
             for partner in tip_data:
                 with st.container():
                     st.markdown(f"""
-                    <div style="margin-bottom: 15px; padding: 10px; border-left: 4px solid var(--primary-color);">
-                        <h4 style="margin: 0; color: var(--primary-color);">👤 {partner['Partner Name']} <span style="color: #666; font-size: 0.9em;">#{partner['#']}</span></h4>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--secondary-color);">{partner['Rounded']}</div>
-                        <div style="display: flex; justify-content: space-between; color: #666; font-size: 0.9rem; margin-top: 5px;">
+                    <div class="custom-card">
+                        <h4 style="margin: 0; color: #00704A;">{partner['Partner Name']} <span style="color: #666;">#{partner['#']}</span></h4>
+                        <div style="display: flex; justify-content: space-between; margin-top: 5px;">
                             <div>{partner['Hours']} hours</div>
-                            <div>Rate: {partner['Hourly Rate']}/hr</div>
-                        </div>
-                        <hr style="margin: 10px 0; border: 0; height: 1px; background: #eee;">
-                        <div style="display: flex; justify-content: space-between; color: #666; font-size: 0.9rem; margin-top: 5px;">
                             <div>
-                                <span style="color: #666;">Exact: ${"{:.2f}".format(float(partner['Exact Amount'][1:]))}</span>
+                                <span style="color: #666; font-size: 0.9em;">${"{:.2f}".format(float(partner['Exact Amount'][1:]))}</span> → 
+                                <span style="font-weight: bold;">{partner['Rounded']}</span>
                             </div>
-                            <div>💵 {partner['Bills']}</div>
+                        </div>
+                        <div style="margin-top: 5px;">
+                            <small>Bills: {partner['Bills']}</small>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
         else:
-            # Desktop gets the enhanced table
+            # Desktop gets the full table
             st.table(tip_data)
         
-        # Save distribution to history with improved button styling
-        col1, col2, col3 = st.columns([1,2,1])
-        with col2:
-            if st.button("💾 Save to History", use_container_width=True):
-                distribution = {
-                    "week": st.session_state["week_counter"] - 1,
-                    "total_amount": st.session_state["total_tip_amount"],
-                    "total_hours": st.session_state["total_hours"],
-                    "partners": st.session_state["distributed_tips"]
-                }
-                
-                if "tips_history" not in st.session_state:
-                    st.session_state["tips_history"] = []
-                
-                st.session_state["tips_history"].append(distribution)
-                st.success("✅ Distribution saved to history!")
+        # Display copy-paste ready format
+        st.subheader("Copy-paste ready format:")
+        for partner in st.session_state["distributed_tips"]:
+            st.text(partner["formatted_output"])
+        
+        # Save distribution to history
+        if st.button("Save to History", use_container_width=is_mobile()):
+            distribution = {
+                "week": st.session_state["week_counter"] - 1,
+                "total_amount": st.session_state["total_tip_amount"],
+                "total_hours": st.session_state["total_hours"],
+                "partners": st.session_state["distributed_tips"]
+            }
+            
+            if "tips_history" not in st.session_state:
+                st.session_state["tips_history"] = []
+            
+            st.session_state["tips_history"].append(distribution)
+            st.success("Distribution saved to history!")
     
-    # History section with enhanced styling
+    # History section
     if "tips_history" in st.session_state and st.session_state["tips_history"]:
-        st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
-        with st.expander("📜 View Distribution History"):
+        with st.expander("View Distribution History"):
             for i, dist in enumerate(st.session_state["tips_history"]):
-                st.markdown(f"""
-                <div style="margin-bottom: 20px;">
-                    <h3 style="margin-top:0;">Week {dist['week']}</h3>
-                    <p><strong>Total:</strong> ${dist['total_amount']} for {dist['total_hours']} hours</p>
-                    <div style="background-color: var(--light-bg); border-radius: 8px; padding: 10px; margin-top: 10px;">
-                """, unsafe_allow_html=True)
+                st.write(f"### Week {dist['week']}")
+                st.write(f"Total: ${dist['total_amount']} for {dist['total_hours']} hours")
                 
                 for partner in dist["partners"]:
-                    st.markdown(f"""
-                    <p style="margin: 5px 0; padding-bottom: 5px; border-bottom: 1px solid #eee;">
-                        <span style="font-weight: 500;">{partner['name']}</span> | 
-                        #{partner['number']} | 
-                        {partner['hours']} hrs | 
-                        <span style="color: var(--primary-color); font-weight: 500;">${partner['tip_amount']}</span> | 
-                        <span style="color: #666; font-size: 0.9em;">{partner['bills_text']}</span>
-                    </p>
-                    """, unsafe_allow_html=True)
+                    st.write(f"{partner['name']} | #{partner['number']} | {partner['hours']} hours | ${partner['tip_amount']} | {partner['bills_text']}")
                 
-                st.markdown("</div></div>", unsafe_allow_html=True)
+                st.markdown("---")
     
-    # Footer with improved styling
-    st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
-    st.markdown("""
-    <div style="text-align: center; color: #666; padding: 10px; font-size: 0.8em;">
-        <p>TipJar | &copy; 2023-2024 | Designed for Starbucks Partners</p>
-        <p style="font-size: 0.9em;">💰 Making tip distribution fair and transparent</p>
-    </div>
-    """, unsafe_allow_html=True)
+    # Download link for OCR result
+    b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
+    href = f'<a href="data:file/txt;base64,{b64}" download="ocr_result.txt">Download OCR Result</a>'
+    st.markdown(href, unsafe_allow_html=True) 
 
-    # Download link for OCR result with improved styling
-    if st.session_state.get("ocr_result"):
-        b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
-        st.markdown(f"""
-        <div style="text-align: center; margin-top: 20px;">
-            <a href="data:file/txt;base64,{b64}" 
-               download="ocr_result.txt"
-               style="text-decoration: none; color: var(--primary-color); font-size: 0.9em;">
-               📄 Download OCR Result
-            </a>
-        </div>
-        """, unsafe_allow_html=True) 
+# Add Starbucks-themed footer
+st.markdown("---")
+st.markdown(
+    """
+    <div style="text-align: center; color: #00704A; margin-top: 30px;">
+        <p>TipJar v1.2 © 2025 | Made with 💚 by William Walsh</p>
+    </div>
+    """, 
+    unsafe_allow_html=True
+) 
