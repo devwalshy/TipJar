@@ -21,6 +21,20 @@ load_dotenv()
 # Add custom CSS for better responsiveness
 st.markdown("""
 <style>
+    /* Hide sidebar completely */
+    [data-testid="stSidebar"] {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Ensure main content spans full width */
+    .stApp > header + div > div {
+        width: 100% !important;
+    }
+    
     /* Base styles for all devices */
     .stApp {
         max-width: 100%;
@@ -56,11 +70,6 @@ st.markdown("""
             padding-right: 10px !important;
             max-width: 95vw !important;
         }
-        
-        /* Hide sidebar on mobile by default */
-        section[data-testid="stSidebar"] {
-            display: none !important;
-        }
     }
     
     /* Starbucks brand styling */
@@ -69,12 +78,6 @@ st.markdown("""
         background-color: #00704A !important;
         color: white !important;
         font-weight: 500;
-    }
-    
-    /* Improve sidebar spacing */
-    section[data-testid="stSidebar"] {
-        background-color: #1e1e1e;
-        padding-top: 2rem;
     }
     
     /* Custom text colors */
@@ -166,17 +169,6 @@ if "gemini_chat" not in st.session_state:
 # Get API keys from environment variables
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-
-# Add config section in sidebar
-with st.sidebar:
-    # Add Starbucks-inspired branding
-    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
-    st.title("TipJar")
-    st.caption("Made by William Walsh 2025")
-    
-    # Add Starbucks-inspired footer to sidebar
-    st.markdown("---")
-    st.markdown("<div style='text-align: center; color: #00704A;'>TipJar © 2025</div>", unsafe_allow_html=True)
 
 # Choose AI Provider - different layout for mobile vs desktop
 if is_mobile():
@@ -733,14 +725,3 @@ if st.session_state["ocr_result"]:
     b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
     href = f'<a href="data:file/txt;base64,{b64}" download="ocr_result.txt">Download OCR Result</a>'
     st.markdown(href, unsafe_allow_html=True) 
-
-# Add Starbucks-themed footer
-st.markdown("---")
-st.markdown(
-    """
-    <div style="text-align: center; color: #00704A; margin-top: 30px;">
-        <p>TipJar v1.2 © 2025 | Made with 💚 by William Walsh</p>
-    </div>
-    """, 
-    unsafe_allow_html=True
-) 
