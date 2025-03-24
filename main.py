@@ -40,6 +40,39 @@ st.markdown("""
         max-width: 100%;
     }
     
+    /* Professional styling and centering */
+    h1 {
+        color: #00704A !important;
+        text-align: center !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    
+    .caption {
+        text-align: center !important;
+        color: #444 !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    
+    .header-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem 0;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #e6e6e6;
+    }
+    
+    /* Professional subheadings */
+    h2, h3, h4 {
+        color: #00704A !important;
+        margin-top: 1.5rem !important;
+        margin-bottom: 1rem !important;
+        font-weight: 600 !important;
+    }
+    
     /* Mobile detection and responsive design */
     @media (max-width: 768px) {
         /* Apply mobile styles automatically based on viewport */
@@ -88,14 +121,44 @@ st.markdown("""
     /* Consistent table styling */
     table {
         width: 100%;
+        border-collapse: collapse;
+    }
+    
+    table th {
+        background-color: #f0f0f0;
+        padding: 8px;
+        text-align: left;
+        border-bottom: 2px solid #00704A;
+    }
+    
+    table td {
+        padding: 8px;
+        border-bottom: 1px solid #e6e6e6;
     }
     
     /* Container styling */
     .custom-card {
         border: 1px solid rgba(49, 51, 63, 0.2);
         border-radius: 10px;
-        padding: 10px;
-        margin-bottom: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* App description styling */
+    .app-description {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+        text-align: center;
+    }
+    
+    .app-description ul {
+        display: inline-block;
+        text-align: left;
+        margin: 10px auto;
+        padding-left: 20px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -125,32 +188,28 @@ if 'mobile_detected' not in st.session_state:
     </div>
     """, unsafe_allow_html=True)
 
-# Title section - same for both mobile and desktop
-if is_mobile():
-    # For mobile: centered logo and stacked layout
-    st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=80)
-    st.title("TipJar")
-    st.caption("Made by William Walsh")
-    st.caption("Starbucks Store# 69600")
-else:
-    # For desktop: logo and title side by side
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
-    with col2:
-        st.title("TipJar")
-        st.caption("Made by William Walsh")
-        st.caption("Starbucks Store# 69600")
+# Title section - using a custom centered layout
+st.markdown('<div class="header-container">', unsafe_allow_html=True)
+st.image("https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png", width=100)
+st.markdown('<h1>TipJar</h1>', unsafe_allow_html=True)
+st.markdown('<p class="caption">Made by William Walsh</p>', unsafe_allow_html=True)
+st.markdown('<p class="caption">Starbucks Store# 69600</p>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
+# App description with improved styling
+st.markdown('<div class="app-description">', unsafe_allow_html=True)
 st.markdown("""
 This application helps automate tip allocation and cash distribution for service teams.
 
-Key functions:
-1. Process partner hours from PDF/image input
-2. Calculate individual tips based on hours worked
-3. Distribute bills equitably among partners
-4. Output detailed distribution breakdown per partner
-""")
+**Key functions:**
+<ul>
+<li>Process partner hours from PDF/image input</li>
+<li>Calculate individual tips based on hours worked</li>
+<li>Distribute bills equitably among partners</li>
+<li>Output detailed distribution breakdown per partner</li>
+</ul>
+""", unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Initialize session state variables
 if "ocr_result" not in st.session_state:
