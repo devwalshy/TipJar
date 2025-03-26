@@ -17,6 +17,9 @@ build/
 # Streamlit specific
 .streamlit/
 
+# Gradio app directory
+gradio_app/
+
 # IDE specific files
 .idea/
 .vscode/
