@@ -732,10 +732,110 @@ if st.session_state["ocr_result"]:
                 
                 st.markdown("---")
     
-    # Download link for OCR result
-    b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
-    href = f'<a href="data:file/txt;base64,{b64}" download="ocr_result.txt">Download OCR Result</a>'
-    st.markdown(href, unsafe_allow_html=True) 
+    # Download options for OCR result
+    if st.session_state["tips_calculated"]:
+        # Generate HTML table for download
+        def generate_html_table(tip_data):
+            html = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>TipJar Results</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        margin: 20px;
+                    }
+                    h1 {
+                        color: #00704A;
+                        text-align: center;
+                    }
+                    .info {
+                        margin: 10px 0;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 20px;
+                    }
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    th {
+                        background-color: #00704A;
+                        color: white;
+                    }
+                    tr:nth-child(even) {
+                        background-color: #f2f2f2;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>Tip Distribution Results</h1>
+                <div class="info">
+                    <p><strong>Hourly Rate:</strong> $""" + f"{st.session_state['hourly_rate']:.4f}" + """ per hour (unrounded)</p>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Partner Name</th>
+                            <th>Hours</th>
+                            <th>Exact Amount</th>
+                            <th>Cash Amount</th>
+                            <th>Bills</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            """
+            
+            for partner in tip_data:
+                html += f"""
+                        <tr>
+                            <td>{partner['#']}</td>
+                            <td>{partner['Partner Name']}</td>
+                            <td>{partner['Hours']}</td>
+                            <td>{partner['Exact Amount']}</td>
+                            <td>{partner['Cash Amount']}</td>
+                            <td>{partner['Bills']}</td>
+                        </tr>
+                """
+            
+            html += """
+                    </tbody>
+                </table>
+            </body>
+            </html>
+            """
+            
+            return html
+        
+        # Get the tip distribution data to create HTML table
+        html_content = generate_html_table(tip_data)
+        html_b64 = base64.b64encode(html_content.encode()).decode()
+        
+        # Display download options
+        st.subheader("Download Options")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Download original OCR text
+            b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
+            href = f'<a href="data:file/txt;base64,{b64}" download="ocr_result.txt" class="stButton"><button>Download OCR Text</button></a>'
+            st.markdown(href, unsafe_allow_html=True)
+        
+        with col2:
+            # Download formatted HTML table
+            html_href = f'<a href="data:text/html;base64,{html_b64}" download="tip_distribution.html" class="stButton"><button>Download as Table</button></a>'
+            st.markdown(html_href, unsafe_allow_html=True)
+    else:
+        # Just provide the OCR text download if tips haven't been calculated
+        b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
+        href = f'<a href="data:file/txt;base64,{b64}" download="ocr_result.txt">Download OCR Result</a>'
+        st.markdown(href, unsafe_allow_html=True)
 
 # Add Starbucks-themed footer
 st.markdown("---")
