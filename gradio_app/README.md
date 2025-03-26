@@ -95,4 +95,51 @@ Gradio offers several advantages over Streamlit for this application:
 
 ## Note
 
-This is a converted version of the original Streamlit app. Both versions provide the same core functionality, but this Gradio version is optimized for mobile use. 
+This is a converted version of the original Streamlit app. Both versions provide the same core functionality, but this Gradio version is optimized for mobile use.
+
+## Deployment Options
+
+### 1. Standalone Gradio Deployment
+
+To deploy the Gradio app as a standalone application:
+
+```bash
+# Navigate to the gradio_app directory
+cd gradio_app
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Launch the app
+python app.py
+```
+
+### 2. Streamlit Integration
+
+This app can also be deployed through Streamlit using the included wrapper:
+
+```bash
+# Navigate to the gradio_app directory
+cd gradio_app
+
+# Install Streamlit-specific requirements
+pip install -r requirements-streamlit.txt
+
+# Launch the Streamlit wrapper
+streamlit run streamlit_wrapper.py
+```
+
+### 3. GitHub Deployment
+
+The app is already set up to be deployed directly from GitHub:
+
+1. **For Streamlit Cloud**:
+   - Connect your GitHub repository to Streamlit Cloud
+   - Set the main file path to `gradio_app/streamlit_wrapper.py`
+   - Configure your API keys as secrets in the Streamlit dashboard
+
+2. **For Hugging Face Spaces**:
+   - Create a new Gradio Space
+   - Connect to your GitHub repository
+   - Set the file path to `gradio_app/app.py`
+   - Add your API keys as secrets 
