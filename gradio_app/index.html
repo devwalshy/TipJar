@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TipJar - Starbucks Store# 69600</title>
+    
+    <!-- Mobile-specific meta tags -->
+    <meta name="theme-color" content="#00704A">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- Favicon and app icons -->
+    <link rel="icon" href="https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png">
+    
+    <!-- Splash screen for iOS -->
+    <link rel="apple-touch-startup-image" href="https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f9f9f9;
+        }
+        
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        
+        #loader img {
+            width: 120px;
+            margin-bottom: 20px;
+        }
+        
+        #loader p {
+            color: #00704A;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 4px solid #D4E9E2;
+            border-top: 4px solid #00704A;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        #app-frame {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .add-to-home {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background-color: #00704A;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-weight: 500;
+            display: none;
+            z-index: 999;
+        }
+        
+        .add-to-home button {
+            background-color: white;
+            color: #00704A;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            margin-top: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading screen -->
+    <div id="loader">
+        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png" alt="Starbucks Logo">
+        <p>Loading TipJar...</p>
+        <div class="spinner"></div>
+    </div>
+    
+    <!-- Add to home screen prompt -->
+    <div id="add-to-home" class="add-to-home">
+        For the best experience, add TipJar to your home screen!
+        <br>
+        <button id="dismiss-prompt">Got it</button>
+    </div>
+    
+    <!-- Main app iframe -->
+    <iframe id="app-frame" src="http://127.0.0.1:7860"></iframe>
+    
+    <script>
+        // Hide loader when iframe is loaded
+        document.getElementById('app-frame').onload = function() {
+            setTimeout(function() {
+                document.getElementById('loader').style.opacity = '0';
+                document.getElementById('app-frame').style.opacity = '1';
+                
+                setTimeout(function() {
+                    document.getElementById('loader').style.display = 'none';
+                }, 500);
+            }, 1500); // Show loader for at least 1.5 seconds
+        };
+        
+        // Check if app is in standalone mode (added to home screen)
+        var isInStandaloneMode = (window.matchMedia('(display-mode: standalone)').matches) || 
+                                (window.navigator.standalone) || 
+                                document.referrer.includes('android-app://');
+        
+        // Show add to home screen prompt if not in standalone mode
+        if (!isInStandaloneMode && !localStorage.getItem('dismissedHomePrompt')) {
+            setTimeout(function() {
+                document.getElementById('add-to-home').style.display = 'block';
+            }, 5000);
+        }
+        
+        // Dismiss the add to home screen prompt
+        document.getElementById('dismiss-prompt').addEventListener('click', function() {
+            document.getElementById('add-to-home').style.display = 'none';
+            localStorage.setItem('dismissedHomePrompt', 'true');
+        });
+    </script>
+</body>
+</html> 
