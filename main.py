@@ -562,17 +562,31 @@ if st.session_state["ocr_result"]:
                 partner_data = st.session_state["partner_data"]
                 total_hours = st.session_state["total_hours"]
                 
-                for partner in partner_data:
-                    # Calculate exact tip amount (hours/total_hours * total_tips)
-                    exact_amount = (float(partner["hours"]) / total_hours) * total_tip_amount
-                    # Store both exact and rounded amounts
-                    partner["exact_tip_amount"] = exact_amount
-                    # Round to nearest dollar (Starbucks policy)
-                    # Examples: $23.89 rounds to $24, $12.12 rounds to $12
-                    partner["tip_amount"] = round(exact_amount)
+                # Calculate hourly tip rate - DO NOT round this
+                hourly_rate = total_tip_amount / total_hours
                 
-                # Add a note about the rounding policy
-                st.info("Following Starbucks policy, tip amounts are rounded to the nearest dollar for simplicity in distribution.")
+                for partner in partner_data:
+                    # Calculate exact tip amount (hours * hourly_rate)
+                    exact_amount = float(partner["hours"]) * hourly_rate
+                    
+                    # Store the exact amount without rounding
+                    partner["raw_tip_amount"] = exact_amount
+                    
+                    # Store the amount rounded to cents (e.g., $43.1725 → $43.17)
+                    partner["exact_tip_amount"] = round(exact_amount, 2)
+                    
+                    # Round to nearest dollar for cash distribution (e.g., $43.17 → $43)
+                    partner["tip_amount"] = round(partner["exact_tip_amount"])
+                
+                # Add information about the hourly rate and rounding policy
+                st.info(f"""
+                **Hourly Rate**: ${hourly_rate:.2f} per hour
+                
+                **Rounding Policy**: 
+                1. First calculate exact amount (hours × hourly rate)
+                2. Round to cents (e.g., $43.1725 → $43.17)
+                3. Round to nearest dollar for cash distribution (e.g., $43.17 → $43)
+                """)
                 
                 # Distribute bills
                 denominations = [20, 10, 5, 1]
@@ -629,6 +643,7 @@ if st.session_state["ocr_result"]:
                 # Save to session state
                 st.session_state["distributed_tips"] = partner_data
                 st.session_state["total_tip_amount"] = total_tip_amount
+                st.session_state["hourly_rate"] = hourly_rate
                 st.session_state["tips_calculated"] = True
                 
                 # Increment week counter for the next allocation
@@ -640,11 +655,14 @@ if st.session_state["ocr_result"]:
     if st.session_state.get("tips_calculated", False):
         st.subheader("Tip Distribution Results")
         
+        # Display the hourly rate
+        st.markdown(f"**Hourly Rate**: ${st.session_state['hourly_rate']:.2f} per hour")
+        
         # Add explanation about rounding policy
         st.markdown("""
         <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-            <strong>Rounding Policy:</strong> Following Starbucks standard practice, tip amounts are rounded to the nearest dollar.
-            For example, $23.89 rounds up to $24, while $12.12 rounds down to $12.
+            <strong>Rounding Policy:</strong> Tip amounts are calculated precisely, rounded to cents, and then to the nearest dollar for cash distribution.
+            For example, 24.67 hours × $1.75/hour = $43.1725 → rounded to $43.17 → cash distribution of $43.
         </div>
         """, unsafe_allow_html=True)
         
@@ -655,8 +673,8 @@ if st.session_state["ocr_result"]:
                 "Partner Name": partner["name"],
                 "#": partner["number"],
                 "Hours": partner["hours"],
-                "Exact Amount": f"${partner['exact_tip_amount']:.2f}",
-                "Rounded": f"${partner['tip_amount']}",
+                "Amount (Cents)": f"${partner['exact_tip_amount']:.2f}",
+                "Amount (Cash)": f"${partner['tip_amount']}",
                 "Bills": partner["bills_text"]
             })
         
@@ -670,8 +688,8 @@ if st.session_state["ocr_result"]:
                         <div style="display: flex; justify-content: space-between; margin-top: 5px;">
                             <div>{partner['Hours']} hours</div>
                             <div>
-                                <span style="color: #666; font-size: 0.9em;">${"{:.2f}".format(float(partner['Exact Amount'][1:]))}</span> → 
-                                <span style="font-weight: bold;">{partner['Rounded']}</span>
+                                <span style="font-weight: bold;">{partner['Amount (Cents)']}</span> → 
+                                <span style="color: #00704A; font-weight: bold;">{partner['Amount (Cash)']}</span>
                             </div>
                         </div>
                         <div style="margin-top: 5px;">
