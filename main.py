@@ -97,6 +97,30 @@ st.markdown("""
         padding: 10px;
         margin-bottom: 10px;
     }
+    
+    /* iOS optimization */
+    @media (max-width: 428px) { /* iPhone Pro Max width */
+        /* Larger touch targets for iOS */
+        button, [role="button"], .stSelectbox, .stNumberInput {
+            min-height: 48px !important;
+        }
+        
+        /* Prevent auto-zoom on inputs */
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+        
+        /* Full width buttons that are easier to tap */
+        .stButton button {
+            width: 100% !important;
+            margin: 8px 0 !important;
+        }
+        
+        /* More padding around elements */
+        .block-container {
+            padding: 16px !important;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -138,7 +162,7 @@ st.markdown("""
 st.markdown("""<div style="font-size: 1.5rem; font-style: italic; margin: 1.5rem 0; color: #00704A; text-align: center;">\"If theres a Will, Theres a Way!\" -Lauren 2025</div>""", unsafe_allow_html=True)
 st.markdown("""
 Key functions:
-1. Process partner hours from PDF/image input
+1. Process partner hours from image input
 2. Calculate individual tips based on hours worked
 3. Distribute bills equitably among partners
 4. Output detailed distribution breakdown per partner
@@ -161,313 +185,123 @@ if "gemini_chat" not in st.session_state:
     st.session_state["gemini_chat"] = None
 
 # Get API keys from environment variables
-MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-# Choose AI Provider - different layout for mobile vs desktop
-if is_mobile():
-    # More compact layout for mobile
-    ai_provider = st.radio("Select AI Provider:", ("Mistral", "Gemini"), horizontal=True)
-    
-    # For mobile, stack the file type and source type selection vertically
-    file_type = st.radio("File type:", ("PDF", "Image"), horizontal=True)
-    source_type = st.radio("Source:", ("URL", "Local Upload"), horizontal=True)
-else:
-    # Desktop layout
-    ai_provider = st.radio("Select AI Provider", ("Mistral", "Gemini"))
-    
-    # Side-by-side for desktop
-    col1, col2 = st.columns(2)
-    with col1:
-        file_type = st.radio("Select file type", ("PDF", "Image"))
-    with col2:
-        source_type = st.radio("Select source type", ("URL", "Local Upload"))
+# Simplified UI - only Gemini, only Image, only Local Upload
+ai_provider = "Gemini"  # Set default and only option
+file_type = "Image"     # Set default and only option
+source_type = "Local Upload"  # Set default and only option
 
 # Check if selected provider's API key is available
-if ai_provider == "Mistral":
-    if not MISTRAL_API_KEY:
-        st.error("Mistral API key is not configured in the .env file. Please add it and restart the application.")
-        st.stop()
-else:  # Gemini
-    if not GEMINI_API_KEY:
-        st.error("Gemini API key is not configured in the .env file. Please add it and restart the application.")
-        st.stop()
-    
-    # Configure Gemini with safety settings
-    genai.configure(api_key=GEMINI_API_KEY)
-    generation_config = {
-        "temperature": 0.7,
-        "top_p": 0.9,
-        "top_k": 40,
-        "max_output_tokens": 2048,
-    }
-    safety_settings = [
-        {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
-        {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
-        {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
-        {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
-    ]
+if not GEMINI_API_KEY:
+    st.error("Gemini API key is not configured in the .env file. Please add it and restart the application.")
+    st.stop()
 
-input_url = ""
-uploaded_file = None
+# Configure Gemini with safety settings
+genai.configure(api_key=GEMINI_API_KEY)
+generation_config = {
+    "temperature": 0.7,
+    "top_p": 0.9,
+    "top_k": 40,
+    "max_output_tokens": 2048,
+}
+safety_settings = [
+    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+]
 
-# URL or upload section - adapt based on device type
-if source_type == "URL":
-    if file_type == "PDF":
-        input_url = st.text_input("Enter PDF URL")
-    else:
-        input_url = st.text_input("Enter Image URL")
-else:
-    if file_type == "PDF":
-        uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
-    else:
-        uploaded_file = st.file_uploader("Upload an Image file", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Upload an Image file", type=["jpg", "jpeg", "png"])
 
 # Process Button & OCR Handling
-if st.button("Process", use_container_width=is_mobile()):
-    if source_type == "URL" and not input_url:
-        st.error("Please enter a valid URL.")
-    elif source_type == "Local Upload" and not uploaded_file:
-        st.error("Please upload a file.")
+if st.button("Process", use_container_width=True):
+    if not uploaded_file:
+        st.error("Please upload an image file.")
     else:
-        with st.spinner("Processing the document..."):
-            if ai_provider == "Mistral":
-                client = Mistral(api_key=MISTRAL_API_KEY)
-                # Existing Mistral processing code
-                if file_type == "PDF":
-                    if source_type == "URL":
-                        document = {
-                            "type": "document_url",
-                            "document_url": input_url
-                        }
-                        preview_src = input_url
-                    else:
-                        file_bytes = uploaded_file.read()
-                        encoded_pdf = base64.b64encode(file_bytes).decode("utf-8")
-                        preview_src = f"data:application/pdf;base64,{encoded_pdf}"
-                        document = {
-                            "type": "document_url",
-                            "document_url": preview_src
-                        }
-                        st.session_state["image_bytes"] = file_bytes
-                else:  # Image
-                    if source_type == "URL":
-                        document = {
-                            "type": "image_url",
-                            "image_url": input_url
-                        }
-                        preview_src = input_url
-                    else:
-                        file_bytes = uploaded_file.read()
-                        mime_type = uploaded_file.type
-                        encoded_image = base64.b64encode(file_bytes).decode("utf-8")
-                        document = {
-                            "type": "image_url",
-                            "image_url": f"data:{mime_type};base64,{encoded_image}"
-                        }
-                        preview_src = f"data:{mime_type};base64,{encoded_image}"
-                        st.session_state["image_bytes"] = file_bytes
-
-                ocr_response = client.ocr.process(
-                    model="mistral-ocr-latest",
-                    document=document,
-                    include_image_base64=True
+        with st.spinner("Processing the image..."):
+            try:
+                # Initialize Gemini 1.5 Flash model for vision tasks
+                model = genai.GenerativeModel(
+                    'gemini-1.5-flash',
+                    generation_config=generation_config,
+                    safety_settings=safety_settings
                 )
-                try:
-                    if hasattr(ocr_response, "pages"):
-                        pages = ocr_response.pages
-                    elif isinstance(ocr_response, list):
-                        pages = ocr_response
-                    else:
-                        pages = []
-                    result_text = "\n\n".join(page.markdown for page in pages)
-                    if not result_text:
-                        result_text = "No text found in the document."
-                except Exception as e:
-                    result_text = f"Error extracting text: {str(e)}"
-
-            else:  # Gemini
-                try:
-                    if file_type == "Image":
-                        # Initialize Gemini 1.5 Flash model for vision tasks
-                        model = genai.GenerativeModel(
-                            'gemini-1.5-flash',
-                            generation_config=generation_config,
-                            safety_settings=safety_settings
-                        )
-                        
-                        if source_type == "Local Upload":
-                            # Store the original file bytes for preview
-                            st.session_state["image_bytes"] = uploaded_file.read()
-                            image = Image.open(io.BytesIO(st.session_state["image_bytes"]))
-                            preview_src = None
-                        else:  # URL
-                            response = requests.get(input_url)
-                            st.session_state["image_bytes"] = response.content
-                            image = Image.open(io.BytesIO(response.content))
-                            preview_src = input_url
-                        
-                        # Create structured prompt for better OCR
-                        prompt = """Please analyze this image and:
-                        1. Extract all visible text, especially focusing on names and hours worked
-                        2. Maintain the original formatting and structure
-                        3. Preserve any important visual context
-                        4. Make sure to clearly identify all partner/employee names and their corresponding hours
-                        
-                        Extract and format the text clearly:"""
-                        
-                        response = model.generate_content([prompt, image])
-                        response.resolve()
-                        result_text = response.text
-
-                    else:  # PDF
-                        st.error("PDF processing with Gemini is not supported yet. Please use Mistral for PDFs.")
-                        st.stop()
-                    
-                    # Initialize chat model for processing with Gemini 1.5 Pro
-                    st.session_state["gemini_chat"] = genai.GenerativeModel(
-                        'gemini-1.5-pro',
-                        generation_config=generation_config,
-                        safety_settings=safety_settings
-                    ).start_chat(history=[])
-                    
-                except Exception as e:
-                    st.error(f"Error processing with Gemini: {str(e)}")
-                    st.stop()
-            
-            st.session_state["ocr_result"] = result_text
-            st.session_state["preview_src"] = preview_src
-            st.session_state["tips_calculated"] = False
+                
+                # Store the original file bytes for preview
+                st.session_state["image_bytes"] = uploaded_file.read()
+                image = Image.open(io.BytesIO(st.session_state["image_bytes"]))
+                preview_src = None
+                
+                # Create structured prompt for better OCR
+                prompt = """Please analyze this image and:
+                1. Extract all visible text, especially focusing on names and hours worked
+                2. Maintain the original formatting and structure
+                3. Preserve any important visual context
+                4. Make sure to clearly identify all partner/employee names and their corresponding hours
+                
+                Extract and format the text clearly:"""
+                
+                response = model.generate_content([prompt, image])
+                response.resolve()
+                result_text = response.text
+                
+                # Initialize chat model for processing with Gemini 1.5 Pro
+                st.session_state["gemini_chat"] = genai.GenerativeModel(
+                    'gemini-1.5-pro',
+                    generation_config=generation_config,
+                    safety_settings=safety_settings
+                ).start_chat(history=[])
+                
+                st.session_state["ocr_result"] = result_text
+                st.session_state["preview_src"] = preview_src
+                st.session_state["tips_calculated"] = False
+                
+            except Exception as e:
+                st.error(f"Error processing with Gemini: {str(e)}")
+                st.stop()
 
 # Display Preview and OCR Result
 if st.session_state["ocr_result"]:
-    # Use different layouts for mobile and desktop
-    if is_mobile():
-        # For mobile: stack the preview and OCR result vertically
-        st.subheader("Preview")
-        if file_type == "PDF":
-            try:
-                # For PDFs, use object tag with mobile-friendly height
-                pdf_embed_html = f'''
-                    <object data="{st.session_state["preview_src"]}" 
-                            type="application/pdf" 
-                            width="100%" 
-                            height="400">
-                        <p>Unable to display PDF file. <a href="{st.session_state["preview_src"]}">Download</a> instead.</p>
-                    </object>
-                '''
-                st.markdown(pdf_embed_html, unsafe_allow_html=True)
-            except Exception as e:
-                st.error(f"Error displaying PDF: {str(e)}")
-        else:
-            # For images on mobile, limit height
-            if source_type == "Local Upload" and st.session_state["image_bytes"]:
-                st.image(st.session_state["image_bytes"], use_column_width=True)
-            else:
-                st.image(st.session_state["preview_src"], use_column_width=True)
-        
-        st.subheader("Extracted Hours Data")
-        st.write(st.session_state["ocr_result"])
+    # Use a more mobile-friendly layout for all devices
+    st.subheader("Preview")
+    if st.session_state["image_bytes"]:
+        st.image(st.session_state["image_bytes"], use_column_width=True)
     
-    else:
-        # For desktop: use columns for side-by-side view
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader("Preview")
-            if file_type == "PDF":
-                try:
-                    # For PDFs, use object tag
-                    pdf_embed_html = f'''
-                        <object data="{st.session_state["preview_src"]}" 
-                                type="application/pdf" 
-                                width="100%" 
-                                height="800">
-                            <p>Unable to display PDF file. <a href="{st.session_state["preview_src"]}">Download</a> instead.</p>
-                        </object>
-                    '''
-                    st.markdown(pdf_embed_html, unsafe_allow_html=True)
-                except Exception as e:
-                    st.error(f"Error displaying PDF: {str(e)}")
-            else:
-                # For images, display using st.image
-                if source_type == "Local Upload" and st.session_state["image_bytes"]:
-                    st.image(st.session_state["image_bytes"])
-                else:
-                    st.image(st.session_state["preview_src"])
-        
-        with col2:
-            st.subheader("Extracted Hours Data")
-            st.write(st.session_state["ocr_result"])
+    st.subheader("Extracted Hours Data")
+    st.write(st.session_state["ocr_result"])
     
     # Extract partner data with AI assistance
-    if st.button("Extract Partner Data", use_container_width=is_mobile()):
+    if st.button("Extract Partner Data", use_container_width=True):
         with st.spinner("Extracting partner data..."):
             try:
-                if ai_provider == "Mistral":
-                    client = Mistral(api_key=MISTRAL_API_KEY)
-                    prompt = f"""
-                    From the following text, extract partner names and their hours worked. Format as JSON:
-                    
-                    {st.session_state["ocr_result"]}
-                    
-                    Return a JSON array of objects with 'name' and 'hours' fields. Example:
-                    [
-                        {{"name": "John Smith", "hours": 32.5}},
-                        {{"name": "Jane Doe", "hours": 28.75}}
-                    ]
-                    
-                    Only include valid partners with hours. Output ONLY the JSON array, nothing else.
-                    """
-                    
-                    chat_response = client.chat.complete(
-                        model="mistral-large-latest",
-                        messages=[{"role": "user", "content": prompt}]
-                    )
-                    partner_data_str = chat_response.choices[0].message.content
-                    
-                    # Also extract the total tippable hours from the document if available
-                    total_hours_prompt = f"""
-                    From the following text, extract ONLY the total tippable hours (or total hours) mentioned in the document.
-                    Return ONLY the number. If you find multiple totals, return the one that's labeled as "Total Tippable Hours" or similar.
-                    
-                    {st.session_state["ocr_result"]}
-                    """
-                    
-                    total_hours_response = client.chat.complete(
-                        model="mistral-large-latest",
-                        messages=[{"role": "user", "content": total_hours_prompt}]
-                    )
-                    document_total_hours_str = total_hours_response.choices[0].message.content.strip()
-                    
-                else:  # Gemini
-                    prompt = f"""
-                    From the following text, extract partner names and their hours worked. Format as JSON:
-                    
-                    {st.session_state["ocr_result"]}
-                    
-                    Return a JSON array of objects with 'name' and 'hours' fields. Example:
-                    [
-                        {{"name": "John Smith", "hours": 32.5}},
-                        {{"name": "Jane Doe", "hours": 28.75}}
-                    ]
-                    
-                    Only include valid partners with hours. Output ONLY the JSON array, nothing else.
-                    """
-                    
-                    response = st.session_state["gemini_chat"].send_message(prompt)
-                    partner_data_str = response.text
-                    
-                    # Also extract the total tippable hours from the document if available
-                    total_hours_prompt = f"""
-                    From the following text, extract ONLY the total tippable hours (or total hours) mentioned in the document.
-                    Return ONLY the number. If you find multiple totals, return the one that's labeled as "Total Tippable Hours" or similar.
-                    
-                    {st.session_state["ocr_result"]}
-                    """
-                    
-                    total_hours_response = st.session_state["gemini_chat"].send_message(total_hours_prompt)
-                    document_total_hours_str = total_hours_response.text.strip()
+                prompt = f"""
+                From the following text, extract partner names and their hours worked. Format as JSON:
+                
+                {st.session_state["ocr_result"]}
+                
+                Return a JSON array of objects with 'name' and 'hours' fields. Example:
+                [
+                    {{"name": "John Smith", "hours": 32.5}},
+                    {{"name": "Jane Doe", "hours": 28.75}}
+                ]
+                
+                Only include valid partners with hours. Output ONLY the JSON array, nothing else.
+                """
+                
+                response = st.session_state["gemini_chat"].send_message(prompt)
+                partner_data_str = response.text
+                
+                # Also extract the total tippable hours from the document if available
+                total_hours_prompt = f"""
+                From the following text, extract ONLY the total tippable hours (or total hours) mentioned in the document.
+                Return ONLY the number. If you find multiple totals, return the one that's labeled as "Total Tippable Hours" or similar.
+                
+                {st.session_state["ocr_result"]}
+                """
+                
+                total_hours_response = st.session_state["gemini_chat"].send_message(total_hours_prompt)
+                document_total_hours_str = total_hours_response.text.strip()
                 
                 # Extract the JSON from the response
                 pattern = r'\[\s*{.*}\s*\]'
@@ -517,29 +351,22 @@ if st.session_state["ocr_result"]:
                 st.error(f"Error extracting partner data: {str(e)}")
                 st.error("Please try again or manually enter partner data.")
     
-    # Manual Partner Data Entry Option - make more mobile-friendly
+    # Manual Partner Data Entry Option - make more iOS-friendly
     with st.expander("Or Manually Enter Partner Data"):
         num_partners = st.number_input("Number of Partners", min_value=1, max_value=20, value=3)
         manual_partner_data = []
         
+        # Use vertical stacking for all devices for easier touch input
         for i in range(num_partners):
-            # Different column layout for mobile vs desktop
-            if is_mobile():
-                # Stack fields vertically on mobile
-                name = st.text_input(f"Partner {i+1} Name", key=f"name_{i}")
-                hours = st.number_input(f"Partner {i+1} Hours", min_value=0.0, step=0.25, key=f"hours_{i}")
-            else:
-                # Side-by-side on desktop
-                col1, col2 = st.columns(2)
-                with col1:
-                    name = st.text_input(f"Partner {i+1} Name", key=f"name_{i}")
-                with col2:
-                    hours = st.number_input(f"Partner {i+1} Hours", min_value=0.0, step=0.25, key=f"hours_{i}")
+            with st.container():
+                st.markdown(f"<h4 style='margin-bottom: 0px; color: #00704A;'>Partner {i+1}</h4>", unsafe_allow_html=True)
+                name = st.text_input(f"Name", key=f"name_{i}")
+                hours = st.number_input(f"Hours", min_value=0.0, step=0.25, key=f"hours_{i}")
             
             if name:  # Only add if name is provided
                 manual_partner_data.append({"name": name, "number": i+1, "hours": hours})
         
-        if st.button("Save Partner Data", use_container_width=is_mobile()):
+        if st.button("Save Partner Data", use_container_width=True):
             if all(partner["name"] for partner in manual_partner_data):
                 st.session_state["partner_data"] = manual_partner_data
                 st.session_state["total_hours"] = sum(float(partner["hours"]) for partner in manual_partner_data)
@@ -552,7 +379,7 @@ if st.session_state["ocr_result"]:
         st.subheader("Tip Allocation")
         total_tip_amount = st.number_input("Enter total tip amount for the week: $", min_value=0.0, step=10.0)
         
-        if st.button("Calculate Tips", use_container_width=is_mobile()):
+        if st.button("Calculate Tips", use_container_width=True):
             if total_tip_amount > 0:
                 # Process Week Counter
                 if "week_counter" not in st.session_state:
@@ -665,7 +492,7 @@ if st.session_state["ocr_result"]:
         </div>
         """, unsafe_allow_html=True)
         
-        # Adapt table display for mobile
+        # Prepare tip data
         tip_data = []
         for partner in st.session_state["distributed_tips"]:
             tip_data.append({
@@ -677,36 +504,32 @@ if st.session_state["ocr_result"]:
                 "Bills": partner["bills_text"]
             })
         
-        # For mobile, we can use a simplified view
-        if is_mobile():
-            for partner in tip_data:
-                with st.container():
-                    st.markdown(f"""
-                    <div class="custom-card">
-                        <h4 style="margin: 0; color: #00704A;">{partner['Partner Name']} <span style="color: #666;">#{partner['#']}</span></h4>
-                        <div style="display: flex; justify-content: space-between; margin-top: 5px;">
-                            <div>{partner['Hours']} hours</div>
-                            <div>
-                                <span style="font-weight: normal;">${"{:.4f}".format(float(partner['Exact Amount'][1:]))}</span> → 
-                                <span style="color: #00704A; font-weight: bold;">{partner['Cash Amount']}</span>
-                            </div>
-                        </div>
-                        <div style="margin-top: 5px;">
-                            <small>Bills: {partner['Bills']}</small>
+        # Use card-based layout for all devices - better for touch
+        for partner in tip_data:
+            with st.container():
+                st.markdown(f"""
+                <div class="custom-card">
+                    <h4 style="margin: 0; color: #00704A;">{partner['Partner Name']} <span style="color: #666;">#{partner['#']}</span></h4>
+                    <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                        <div>{partner['Hours']} hours</div>
+                        <div>
+                            <span style="font-weight: normal;">${"{:.4f}".format(float(partner['Exact Amount'][1:]))}</span> → 
+                            <span style="color: #00704A; font-weight: bold;">{partner['Cash Amount']}</span>
                         </div>
                     </div>
-                    """, unsafe_allow_html=True)
-        else:
-            # Desktop gets the full table
-            st.table(tip_data)
+                    <div style="margin-top: 5px;">
+                        <small>Bills: {partner['Bills']}</small>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
         
         # Display copy-paste ready format
-        st.subheader("Copy-paste ready format:")
-        for partner in st.session_state["distributed_tips"]:
-            st.text(partner["formatted_output"])
+        with st.expander("Copy-paste format"):
+            for partner in st.session_state["distributed_tips"]:
+                st.text(partner["formatted_output"])
         
         # Save distribution to history
-        if st.button("Save to History", use_container_width=is_mobile()):
+        if st.button("Save to History", use_container_width=True):
             distribution = {
                 "week": st.session_state["week_counter"] - 1,
                 "total_amount": st.session_state["total_tip_amount"],
@@ -720,20 +543,29 @@ if st.session_state["ocr_result"]:
             st.session_state["tips_history"].append(distribution)
             st.success("Distribution saved to history!")
     
-    # History section
+    # History section - simplified for mobile
     if "tips_history" in st.session_state and st.session_state["tips_history"]:
         with st.expander("View Distribution History"):
             for i, dist in enumerate(st.session_state["tips_history"]):
-                st.write(f"### Week {dist['week']}")
-                st.write(f"Total: ${dist['total_amount']} for {dist['total_hours']} hours")
-                
-                for partner in dist["partners"]:
-                    st.write(f"{partner['name']} | #{partner['number']} | {partner['hours']} hours | ${partner['tip_amount']} | {partner['bills_text']}")
-                
-                st.markdown("---")
+                with st.container():
+                    st.markdown(f"""
+                    <div class="custom-card">
+                        <h4 style="margin: 0; color: #00704A;">Week {dist['week']}</h4>
+                        <p>Total: ${dist['total_amount']} for {dist['total_hours']} hours</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    for partner in dist["partners"]:
+                        st.markdown(f"""
+                        <div style="padding-left: 15px; margin-bottom: 5px;">
+                            {partner['name']} | #{partner['number']} | {partner['hours']} hours | ${partner['tip_amount']} | {partner['bills_text']}
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    st.markdown("<hr style='margin: 15px 0;'>", unsafe_allow_html=True)
     
-    # Download options for OCR result
-    if st.session_state["tips_calculated"]:
+    # Download options for OCR result - more touch-friendly
+    if st.session_state.get("tips_calculated", False):
         # Generate HTML table for download
         def generate_html_table(tip_data):
             html = """
@@ -741,11 +573,14 @@ if st.session_state["ocr_result"]:
             <html>
             <head>
                 <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>TipJar Results</title>
                 <style>
                     body {
-                        font-family: Arial, sans-serif;
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                         margin: 20px;
+                        padding: 0;
+                        color: #333;
                     }
                     h1 {
                         color: #00704A;
@@ -753,15 +588,20 @@ if st.session_state["ocr_result"]:
                     }
                     .info {
                         margin: 10px 0;
+                        background-color: #f8f9fa;
+                        padding: 10px;
+                        border-radius: 8px;
                     }
                     table {
                         width: 100%;
                         border-collapse: collapse;
                         margin-top: 20px;
+                        border-radius: 8px;
+                        overflow: hidden;
                     }
                     th, td {
                         border: 1px solid #ddd;
-                        padding: 8px;
+                        padding: 12px 8px;
                         text-align: left;
                     }
                     th {
@@ -770,6 +610,12 @@ if st.session_state["ocr_result"]:
                     }
                     tr:nth-child(even) {
                         background-color: #f2f2f2;
+                    }
+                    @media (max-width: 600px) {
+                        th, td {
+                            padding: 8px 4px;
+                            font-size: 14px;
+                        }
                     }
                 </style>
             </head>
@@ -817,32 +663,31 @@ if st.session_state["ocr_result"]:
         html_content = generate_html_table(tip_data)
         html_b64 = base64.b64encode(html_content.encode()).decode()
         
-        # Display download options
+        # Display download options - stacked for better mobile/touch experience
         st.subheader("Download Options")
-        col1, col2 = st.columns(2)
         
-        with col1:
-            # Download original OCR text
-            b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
-            href = f'<a href="data:file/txt;base64,{b64}" download="ocr_result.txt" class="stButton"><button>Download OCR Text</button></a>'
-            st.markdown(href, unsafe_allow_html=True)
-        
-        with col2:
-            # Download formatted HTML table
-            html_href = f'<a href="data:text/html;base64,{html_b64}" download="tip_distribution.html" class="stButton"><button>Download as Table</button></a>'
-            st.markdown(html_href, unsafe_allow_html=True)
-    else:
-        # Just provide the OCR text download if tips haven't been calculated
+        # Download original OCR text
         b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
-        href = f'<a href="data:file/txt;base64,{b64}" download="ocr_result.txt">Download OCR Result</a>'
+        href_ocr = f'<div style="margin: 10px 0;"><a href="data:file/txt;base64,{b64}" download="ocr_result.txt" class="stButton" style="text-decoration: none;"><button style="width: 100%; border-radius: 20px; background-color: #00704A; color: white; padding: 12px; border: none; font-weight: 500;">Download OCR Text</button></a></div>'
+        st.markdown(href_ocr, unsafe_allow_html=True)
+        
+        # Download formatted HTML table
+        html_href = f'<div style="margin: 10px 0;"><a href="data:text/html;base64,{html_b64}" download="tip_distribution.html" class="stButton" style="text-decoration: none;"><button style="width: 100%; border-radius: 20px; background-color: #00704A; color: white; padding: 12px; border: none; font-weight: 500;">Download as Table</button></a></div>'
+        st.markdown(html_href, unsafe_allow_html=True)
+    
+    elif st.session_state.get("ocr_result"):
+        # Just provide the OCR text download if tips haven't been calculated
+        st.subheader("Download Options")
+        b64 = base64.b64encode(st.session_state["ocr_result"].encode()).decode()
+        href = f'<div style="margin: 10px 0;"><a href="data:file/txt;base64,{b64}" download="ocr_result.txt" class="stButton" style="text-decoration: none;"><button style="width: 100%; border-radius: 20px; background-color: #00704A; color: white; padding: 12px; border: none; font-weight: 500;">Download OCR Result</button></a></div>'
         st.markdown(href, unsafe_allow_html=True)
 
-# Add Starbucks-themed footer
+# Add Starbucks-themed footer - updated as requested
 st.markdown("---")
 st.markdown(
     """
     <div style="text-align: center; color: #00704A; margin-top: 30px;">
-        <p>TipJar v1.2 | Made with 💚 by William Walsh</p>
+        <p>Made by William Walsh</p>
         <p>Starbucks Store# 69600</p>
     </div>
     """, 
