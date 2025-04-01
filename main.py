@@ -149,29 +149,10 @@ if 'mobile_detected' not in st.session_state:
     </div>
     """, unsafe_allow_html=True)
 
-# Read the image file and convert to base64 for inline display
-def get_image_as_base64(image_path):
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode("utf-8")
-
-# Try to get the image
-try:
-    img_base64 = get_image_as_base64("cutetipjar.jpg")
-    img_html = f'<img src="data:image/jpeg;base64,{img_base64}" width="150" style="margin-bottom: 0.5rem;">'
-except:
-    # Fallback to the png version if jpg fails
-    try:
-        img_base64 = get_image_as_base64("cutetipjar.png")
-        img_html = f'<img src="data:image/png;base64,{img_base64}" width="150" style="margin-bottom: 0.5rem;">'
-    except:
-        # If both fail, use a placeholder
-        img_html = '<div style="width:150px; height:150px; background-color:#00704A; margin-bottom: 0.5rem; display:flex; align-items:center; justify-content:center; color:white;">TipJar</div>'
-
-# Title section with centered elements for all devices
-st.markdown(f"""
+# Title section with centered elements for all devices - simplified without image
+st.markdown("""
 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
-    {img_html}
-    <h1 style="margin: 0; color: #00704A; text-align: center;">TipJar</h1>
+    <h1 style="margin: 0; color: #00704A; text-align: center; font-size: 2.5rem;">TipJar</h1>
 </div>
 <div style="font-size: 1.5rem; font-style: italic; margin: 0.5rem 0 1.5rem 0; color: #00704A; text-align: center;">\"If theres a Will, Theres a Way!\" -Lauren 2025</div>
 """, unsafe_allow_html=True)
