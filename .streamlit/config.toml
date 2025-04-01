@@ -11,4 +11,7 @@ enableCORS = false
 enableXsrfProtection = true
 
 [browser]
-gatherUsageStats = false 
+gatherUsageStats = false
+
+[client]
+toolbarMode = "minimal" 
