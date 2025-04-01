@@ -255,7 +255,7 @@ if st.session_state["ocr_result"]:
     # Use a more mobile-friendly layout for all devices
     st.subheader("Preview")
     if st.session_state["image_bytes"]:
-        st.image(st.session_state["image_bytes"], use_column_width=True)
+        st.image(st.session_state["image_bytes"], use_container_width=True)
     
     st.subheader("Extracted Tippable Hours")
     st.write(st.session_state["ocr_result"])
