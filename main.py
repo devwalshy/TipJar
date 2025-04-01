@@ -154,8 +154,6 @@ st.markdown("""
 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 1rem;">
     <img src="https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png" width="100" style="margin-bottom: 0.5rem;">
     <h1 style="margin: 0.5rem 0; color: #00704A; text-align: center;">TipJar</h1>
-    <p style="margin: 0.2rem 0; color: #444; text-align: center;">Made by William Walsh</p>
-    <p style="margin: 0.2rem 0; color: #444; text-align: center;">Starbucks Store# 69600</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -376,7 +374,6 @@ if st.session_state["ocr_result"]:
     
     # Tip Allocation Section
     if "partner_data" in st.session_state and not st.session_state["tips_calculated"]:
-        st.subheader("Tip Allocation")
         total_tip_amount = st.number_input("Enter total tip amount for the week: $", min_value=0.0, step=10.0)
         
         if st.button("Calculate Tips", use_container_width=True):
@@ -487,7 +484,7 @@ if st.session_state["ocr_result"]:
         hourly_rate = st.session_state['hourly_rate']
         
         st.markdown(f"""
-        <div style="background-color: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+        <div style="background-color: #262730; padding: 12px; border-radius: 8px; margin-bottom: 15px; color: white;">
             <p style="margin: 0"><strong>Calculation:</strong></p>
             <p style="margin: 0">Total Tips: ${total_tip_amount:.2f} ÷ Total Hours: {total_hours:.2f} = <strong>${hourly_rate:.4f}</strong> per hour</p>
         </div>
@@ -495,7 +492,7 @@ if st.session_state["ocr_result"]:
         
         # Add explanation about rounding policy
         st.markdown("""
-        <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        <div style="background-color: #262730; padding: 10px; border-radius: 5px; margin-bottom: 15px; color: white;">
             <strong>Rounding Policy:</strong> Tip amounts are calculated precisely and then rounded directly to the nearest dollar for cash distribution.
         </div>
         """, unsafe_allow_html=True)
