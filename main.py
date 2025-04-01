@@ -268,7 +268,7 @@ if st.session_state["ocr_result"]:
     if st.session_state["image_bytes"]:
         st.image(st.session_state["image_bytes"], use_column_width=True)
     
-    st.subheader("Extracted Hours Data")
+    st.subheader("Extracted Tippable Hours")
     st.write(st.session_state["ocr_result"])
     
     # Extract partner data with AI assistance
@@ -481,43 +481,56 @@ if st.session_state["ocr_result"]:
     if st.session_state.get("tips_calculated", False):
         st.subheader("Tip Distribution Results")
         
-        # Display the hourly rate
-        st.markdown(f"**Hourly Rate**: ${st.session_state['hourly_rate']:.4f} per hour (unrounded)")
+        # Display the hourly rate and calculation
+        total_tip_amount = st.session_state['total_tip_amount']
+        total_hours = st.session_state['total_hours']
+        hourly_rate = st.session_state['hourly_rate']
+        
+        st.markdown(f"""
+        <div style="background-color: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+            <p style="margin: 0"><strong>Calculation:</strong></p>
+            <p style="margin: 0">Total Tips: ${total_tip_amount:.2f} ÷ Total Hours: {total_hours:.2f} = <strong>${hourly_rate:.4f}</strong> per hour</p>
+        </div>
+        """, unsafe_allow_html=True)
         
         # Add explanation about rounding policy
         st.markdown("""
         <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
             <strong>Rounding Policy:</strong> Tip amounts are calculated precisely and then rounded directly to the nearest dollar for cash distribution.
-            For example, 24.67 hours × $1.75/hour = $43.1725 → rounded to $43.
         </div>
         """, unsafe_allow_html=True)
         
-        # Prepare tip data
+        # Prepare tip data with calculations shown
         tip_data = []
         for partner in st.session_state["distributed_tips"]:
+            exact_amount = partner['exact_tip_amount']
+            calculation = f"{partner['hours']} × ${hourly_rate:.4f} = ${exact_amount:.4f}"
+            
             tip_data.append({
                 "Partner Name": partner["name"],
                 "#": partner["number"],
                 "Hours": partner["hours"],
-                "Exact Amount": f"${partner['exact_tip_amount']:.4f}",
+                "Calculation": calculation,
                 "Cash Amount": f"${partner['tip_amount']}",
                 "Bills": partner["bills_text"]
             })
         
-        # Use card-based layout for all devices - better for touch
+        # Use card-based layout with compact design for all devices
         for partner in tip_data:
             with st.container():
                 st.markdown(f"""
-                <div class="custom-card">
-                    <h4 style="margin: 0; color: #00704A;">{partner['Partner Name']} <span style="color: #666;">#{partner['#']}</span></h4>
-                    <div style="display: flex; justify-content: space-between; margin-top: 5px;">
-                        <div>{partner['Hours']} hours</div>
-                        <div>
-                            <span style="font-weight: normal;">${"{:.4f}".format(float(partner['Exact Amount'][1:]))}</span> → 
-                            <span style="color: #00704A; font-weight: bold;">{partner['Cash Amount']}</span>
-                        </div>
+                <div class="custom-card" style="padding: 8px; margin-bottom: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="margin: 0; color: #00704A; font-size: 16px;">{partner['Partner Name']} <span style="color: #666; font-size: 14px;">#{partner['#']}</span></h4>
+                        <span style="color: #00704A; font-weight: bold; font-size: 16px;">{partner['Cash Amount']}</span>
                     </div>
-                    <div style="margin-top: 5px;">
+                    <div style="font-size: 13px; margin-top: 4px;">
+                        <span>{partner['Hours']} hours</span>
+                    </div>
+                    <div style="font-size: 12px; margin-top: 2px; color: #666;">
+                        {partner['Calculation']} → {partner['Cash Amount']}
+                    </div>
+                    <div style="font-size: 12px; margin-top: 2px;">
                         <small>Bills: {partner['Bills']}</small>
                     </div>
                 </div>
@@ -611,6 +624,14 @@ if st.session_state["ocr_result"]:
                     tr:nth-child(even) {
                         background-color: #f2f2f2;
                     }
+                    .calculation {
+                        color: #666;
+                        font-size: 0.9em;
+                    }
+                    .cash-amount {
+                        font-weight: bold;
+                        color: #00704A;
+                    }
                     @media (max-width: 600px) {
                         th, td {
                             padding: 8px 4px;
@@ -622,7 +643,7 @@ if st.session_state["ocr_result"]:
             <body>
                 <h1>Tip Distribution Results</h1>
                 <div class="info">
-                    <p><strong>Hourly Rate:</strong> $""" + f"{st.session_state['hourly_rate']:.4f}" + """ per hour (unrounded)</p>
+                    <p><strong>Hourly Rate Calculation:</strong> $""" + f"{total_tip_amount:.2f} ÷ {total_hours:.2f} = ${hourly_rate:.4f}" + """ per hour</p>
                 </div>
                 <table>
                     <thead>
@@ -630,8 +651,8 @@ if st.session_state["ocr_result"]:
                             <th>#</th>
                             <th>Partner Name</th>
                             <th>Hours</th>
-                            <th>Exact Amount</th>
-                            <th>Cash Amount</th>
+                            <th>Calculation</th>
+                            <th>Cash</th>
                             <th>Bills</th>
                         </tr>
                     </thead>
@@ -644,8 +665,8 @@ if st.session_state["ocr_result"]:
                             <td>{partner['#']}</td>
                             <td>{partner['Partner Name']}</td>
                             <td>{partner['Hours']}</td>
-                            <td>{partner['Exact Amount']}</td>
-                            <td>{partner['Cash Amount']}</td>
+                            <td class="calculation">{partner['Calculation']}</td>
+                            <td class="cash-amount">{partner['Cash Amount']}</td>
                             <td>{partner['Bills']}</td>
                         </tr>
                 """
