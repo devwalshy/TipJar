@@ -13,7 +13,7 @@ import json
 from dotenv import load_dotenv
 
 # Configure page - MUST BE THE FIRST STREAMLIT COMMAND
-st.set_page_config(layout="wide", page_title="TipJar", page_icon="💰")
+st.set_page_config(layout="wide", page_title="TipJar", page_icon="cutetipjar.jpg")
 
 # Load environment variables from .env file
 load_dotenv()
@@ -157,14 +157,6 @@ st.markdown("""
 </div>
 <div style="font-size: 1.5rem; font-style: italic; margin: 0.5rem 0 1.5rem 0; color: #00704A; text-align: center;">\"If theres a Will, Theres a Way!\" -Lauren 2025</div>
 """, unsafe_allow_html=True)
-
-st.markdown("""
-Key functions:
-1. Process partner hours from image input
-2. Calculate individual tips based on hours worked
-3. Distribute bills equitably among partners
-4. Output detailed distribution breakdown per partner
-""")
 
 # Initialize session state variables
 if "ocr_result" not in st.session_state:
