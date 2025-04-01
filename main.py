@@ -396,10 +396,6 @@ if st.session_state["ocr_result"]:
                 # Add information about the hourly rate and rounding policy
                 st.info(f"""
                 **Hourly Rate**: ${hourly_rate:.4f} per hour (unrounded)
-                
-                **Rounding Policy**: 
-                1. Calculate exact amount (hours × hourly rate)
-                2. Round directly to nearest dollar for cash distribution
                 """)
                 
                 # Distribute bills
@@ -478,13 +474,6 @@ if st.session_state["ocr_result"]:
         <div style="background-color: #262730; padding: 12px; border-radius: 8px; margin-bottom: 15px; color: white;">
             <p style="margin: 0"><strong>Calculation:</strong></p>
             <p style="margin: 0">Total Tips: ${total_tip_amount:.2f} ÷ Total Hours: {total_hours:.2f} = <strong>${hourly_rate:.4f}</strong> per hour</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Add explanation about rounding policy
-        st.markdown("""
-        <div style="background-color: #262730; padding: 10px; border-radius: 5px; margin-bottom: 15px; color: white;">
-            <strong>Rounding Policy:</strong> Tip amounts are calculated precisely and then rounded directly to the nearest dollar for cash distribution.
         </div>
         """, unsafe_allow_html=True)
         
