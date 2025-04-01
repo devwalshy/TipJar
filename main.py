@@ -151,13 +151,13 @@ if 'mobile_detected' not in st.session_state:
 
 # Title section with centered elements for all devices
 st.markdown("""
-<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 1rem;">
-    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/d/d3/Starbucks_Corporation_Logo_2011.svg/150px-Starbucks_Corporation_Logo_2011.svg.png" width="100" style="margin-bottom: 0.5rem;">
-    <h1 style="margin: 0.5rem 0; color: #00704A; text-align: center;">TipJar</h1>
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+    <img src="cutetipjar.png" width="150" style="margin-bottom: 0.5rem;">
+    <h1 style="margin: 0; color: #00704A; text-align: center;">TipJar</h1>
 </div>
+<div style="font-size: 1.5rem; font-style: italic; margin: 0.5rem 0 1.5rem 0; color: #00704A; text-align: center;">\"If theres a Will, Theres a Way!\" -Lauren 2025</div>
 """, unsafe_allow_html=True)
 
-st.markdown("""<div style="font-size: 1.5rem; font-style: italic; margin: 1.5rem 0; color: #00704A; text-align: center;">\"If theres a Will, Theres a Way!\" -Lauren 2025</div>""", unsafe_allow_html=True)
 st.markdown("""
 Key functions:
 1. Process partner hours from image input
