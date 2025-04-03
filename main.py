@@ -398,7 +398,7 @@ if st.session_state["ocr_result"]:
                 
                 # Add information about the hourly rate and rounding policy
                 st.info(f"""
-                **Hourly Rate**: ${hourly_rate:.2f} per hour (truncated to hundredths place)
+                **Hourly Rate**: ${hourly_rate:.2f} per hour
                 """)
                 
                 # Distribute bills
