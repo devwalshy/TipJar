@@ -152,7 +152,7 @@ if 'mobile_detected' not in st.session_state:
 # Title section with centered elements for all devices - simplified without image
 st.markdown("""
 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
-    <h1 style="margin: 0; color: #00704A; text-align: center; font-size: 2.5rem;">TipJar</h1>
+    <h1 style="margin: 0; color: #00704A; text-align: center; font-size: 2.6rem;">TipJar</h1>
 </div>
 <div style="font-size: 1.5rem; font-style: italic; margin: 0.5rem 0 1.5rem 0; color: #00704A; text-align: center;">\"If theres a Will, Theres a Way!\" -Lauren 2025</div>
 """, unsafe_allow_html=True)
