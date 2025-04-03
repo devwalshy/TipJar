@@ -380,6 +380,9 @@ if st.session_state["ocr_result"]:
                 # Calculate hourly tip rate - DO NOT round this
                 hourly_rate = total_tip_amount / total_hours
                 
+                # Truncate to hundredths place (e.g., 1.618273 becomes 1.61)
+                hourly_rate = int(hourly_rate * 100) / 100
+                
                 for partner in partner_data:
                     # Calculate exact tip amount (hours * hourly_rate)
                     exact_amount = float(partner["hours"]) * hourly_rate
@@ -395,7 +398,7 @@ if st.session_state["ocr_result"]:
                 
                 # Add information about the hourly rate and rounding policy
                 st.info(f"""
-                **Hourly Rate**: ${hourly_rate:.4f} per hour (unrounded)
+                **Hourly Rate**: ${hourly_rate:.2f} per hour (truncated to hundredths place)
                 """)
                 
                 # Distribute bills
@@ -446,7 +449,7 @@ if st.session_state["ocr_result"]:
                     # Format for copy-paste
                     partner["formatted_output"] = (
                         f"Partner Name: {partner['name']} | #: {partner['number']} | "
-                        f"Hours: {partner['hours']} | Exact: ${partner['exact_tip_amount']:.4f} | "
+                        f"Hours: {partner['hours']} | Exact: ${partner['exact_tip_amount']:.2f} | "
                         f"Cash: ${partner['tip_amount']} | Bills: {partner['bills_text']}"
                     )
                 
@@ -473,7 +476,7 @@ if st.session_state["ocr_result"]:
         st.markdown(f"""
         <div style="background-color: #262730; padding: 12px; border-radius: 8px; margin-bottom: 15px; color: white;">
             <p style="margin: 0"><strong>Calculation:</strong></p>
-            <p style="margin: 0">Total Tips: ${total_tip_amount:.2f} ÷ Total Hours: {total_hours:.2f} = <strong>${hourly_rate:.4f}</strong> per hour</p>
+            <p style="margin: 0">Total Tips: ${total_tip_amount:.2f} ÷ Total Hours: {total_hours:.2f} = <strong>${hourly_rate:.2f}</strong> per hour</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -481,7 +484,7 @@ if st.session_state["ocr_result"]:
         tip_data = []
         for partner in st.session_state["distributed_tips"]:
             exact_amount = partner['exact_tip_amount']
-            calculation = f"{partner['hours']} × ${hourly_rate:.4f} = ${exact_amount:.4f}"
+            calculation = f"{partner['hours']} × ${hourly_rate:.2f} = ${exact_amount:.2f}"
             
             tip_data.append({
                 "Partner Name": partner["name"],
@@ -620,7 +623,7 @@ if st.session_state["ocr_result"]:
             <body>
                 <h1>Tip Distribution Results</h1>
                 <div class="info">
-                    <p><strong>Hourly Rate Calculation:</strong> $""" + f"{total_tip_amount:.2f} ÷ {total_hours:.2f} = ${hourly_rate:.4f}" + """ per hour</p>
+                    <p><strong>Hourly Rate Calculation:</strong> $""" + f"{total_tip_amount:.2f} ÷ {total_hours:.2f} = ${hourly_rate:.2f}" + """ per hour</p>
                 </div>
                 <table>
                     <thead>
