@@ -510,8 +510,13 @@ if st.session_state["ocr_result"]:
                     <div style="font-size: 15px; margin-top: 8px; color: #333; background-color: #f0f0f0; padding: 6px; border-radius: 4px; font-weight: 500;">
                         {partner['Calculation']} → {partner['Cash Amount']}
                     </div>
-                    <div style="font-size: 15px; margin-top: 8px; background-color: #e6f2ee; padding: 6px; border-radius: 4px; color: #00704A; font-weight: 500;">
-                        Bills: {partner['Bills']}
+                    <div style="font-size: 15px; margin-top: 8px; background-color: #e6f2ee; padding: 8px; border-radius: 4px; color: #00704A; font-weight: 500;">
+                        <div style="display: flex; align-items: center;">
+                            <span style="margin-right: 8px;">Bills:</span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                {' '.join([f'<span style="background-color: #00704A; color: white; padding: 5px 10px; border-radius: 15px; display: inline-block;">{bill.strip()}</span>' for bill in partner['Bills'].split(',')])}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
