@@ -499,19 +499,19 @@ if st.session_state["ocr_result"]:
         for partner in tip_data:
             with st.container():
                 st.markdown(f"""
-                <div class="custom-card" style="padding: 8px; margin-bottom: 8px;">
+                <div class="custom-card" style="padding: 12px; margin-bottom: 12px; border: 1px solid #00704A;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <h4 style="margin: 0; color: #00704A; font-size: 16px;">{partner['Partner Name']} <span style="color: #666; font-size: 14px;">#{partner['#']}</span></h4>
-                        <span style="color: #00704A; font-weight: bold; font-size: 16px;">{partner['Cash Amount']}</span>
+                        <span style="color: #00704A; font-weight: bold; font-size: 18px;">{partner['Cash Amount']}</span>
                     </div>
-                    <div style="font-size: 13px; margin-top: 4px;">
+                    <div style="font-size: 14px; margin-top: 6px;">
                         <span>{partner['Hours']} hours</span>
                     </div>
-                    <div style="font-size: 12px; margin-top: 2px; color: #666;">
+                    <div style="font-size: 15px; margin-top: 8px; color: #333; background-color: #f0f0f0; padding: 6px; border-radius: 4px; font-weight: 500;">
                         {partner['Calculation']} → {partner['Cash Amount']}
                     </div>
-                    <div style="font-size: 12px; margin-top: 2px;">
-                        <small>Bills: {partner['Bills']}</small>
+                    <div style="font-size: 15px; margin-top: 8px; background-color: #e6f2ee; padding: 6px; border-radius: 4px; color: #00704A; font-weight: 500;">
+                        Bills: {partner['Bills']}
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
