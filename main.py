@@ -474,7 +474,7 @@ if st.session_state["ocr_result"]:
         hourly_rate = st.session_state['hourly_rate']
         
         st.markdown(f"""
-        <div style="background-color: #262730; padding: 12px; border-radius: 8px; margin-bottom: 15px; color: white;">
+        <div style="background-color: #262730; padding: 12px; border-radius: 8px; margin-bottom: 15px; color: white; font-weight: bold;">
             <p style="margin: 0"><strong>Calculation:</strong></p>
             <p style="margin: 0">Total Tips: ${total_tip_amount:.2f} ÷ Total Hours: {total_hours:.2f} = <strong>${hourly_rate:.2f}</strong> per hour</p>
         </div>
@@ -504,13 +504,13 @@ if st.session_state["ocr_result"]:
                         <h4 style="margin: 0; color: white; font-size: 16px;">{partner['Partner Name']}</h4>
                         <span style="color: white; font-weight: bold; font-size: 22px;">{partner['Cash Amount']}</span>
                     </div>
-                    <div style="font-size: 14px; margin-top: 6px;">
+                    <div style="font-size: 14px; margin-top: 6px; font-weight: bold;">
                         <span>{partner['Hours']} hours</span>
                     </div>
-                    <div style="font-size: 15px; margin-top: 8px; color: #333; background-color: #f0f0f0; padding: 6px; border-radius: 4px; font-weight: 500;">
+                    <div style="font-size: 15px; margin-top: 8px; color: #333; background-color: #f0f0f0; padding: 6px; border-radius: 4px; font-weight: bold;">
                         {partner['Calculation']} → {partner['Cash Amount']}
                     </div>
-                    <div style="font-size: 15px; margin-top: 8px; background-color: #e6f2ee; padding: 8px; border-radius: 4px; color: #00704A; font-weight: 500;">
+                    <div style="font-size: 15px; margin-top: 8px; background-color: #e6f2ee; padding: 8px; border-radius: 4px; color: #00704A; font-weight: bold;">
                         <div style="display: flex; align-items: center;">
                             <span style="margin-right: 8px;">Bills:</span>
                             <div style="display: flex; flex-wrap: wrap; gap: 10px;">
