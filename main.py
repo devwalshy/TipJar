@@ -502,7 +502,7 @@ if st.session_state["ocr_result"]:
                 <div class="custom-card" style="padding: 12px; margin-bottom: 12px; border: 1px solid #00704A;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <h4 style="margin: 0; color: white; font-size: 16px;">{partner['Partner Name']}</h4>
-                        <span style="color: white; font-weight: bold; font-size: 22px;">{partner['Cash Amount']}</span>
+                        <span style="color: #00704A; font-weight: bold; font-size: 18px;">{partner['Cash Amount']}</span>
                     </div>
                     <div style="font-size: 14px; margin-top: 6px; font-weight: bold;">
                         <span>{partner['Hours']} hours</span>
